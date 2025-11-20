@@ -1,14 +1,14 @@
-package uai.helcio;
+package uai.helcio.t1;
 
 import org.slf4j.event.Level;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import uai.helcio.converters.ExtendedToPureRegexConverter;
-import uai.helcio.converters.RegexToTreeConverter;
-import uai.helcio.utils.AppLogger;
-import uai.helcio.utils.ResourcesUtils;
+import uai.helcio.t1.converters.ExtendedToPureRegexConverter;
+import uai.helcio.t1.converters.RegexToTreeConverter;
+import uai.helcio.t1.utils.AppLogger;
+import uai.helcio.t1.utils.ResourcesUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

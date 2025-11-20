@@ -1,10 +1,10 @@
-package uai.helcio.converters;
+package uai.helcio.t1.converters;
 
-import uai.helcio.entities.RegexTree;
-import uai.helcio.entities.RegexNode.BinaryNode;
-import uai.helcio.entities.RegexNode;
-import uai.helcio.entities.RegexNode.UnaryNode;
-import uai.helcio.entities.Rule;
+import uai.helcio.t1.entities.RegexTree;
+import uai.helcio.t1.entities.RegexNode.BinaryNode;
+import uai.helcio.t1.entities.RegexNode;
+import uai.helcio.t1.entities.RegexNode.UnaryNode;
+import uai.helcio.t1.entities.Rule;
 
 /**
  * Precedence order:
@@ -82,6 +82,9 @@ public class RegexToTreeConverter {
     }
 
     private char next() {
+        if (!hasNext()) {
+            throw new IllegalStateException(String.format("'%s' isn't a valid position", pos));
+        }
         return regex.charAt(pos++);
     }
 

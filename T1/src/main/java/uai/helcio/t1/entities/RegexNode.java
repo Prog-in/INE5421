@@ -1,4 +1,4 @@
-package uai.helcio.entities;
+package uai.helcio.t1.entities;
 
 public class RegexNode {
     public static final String END_NODE_SYMBOL = "#";

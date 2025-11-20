@@ -1,8 +1,8 @@
-package uai.helcio.entities;
+package uai.helcio.t1.entities;
 
 import java.util.ArrayList;
 import java.util.List;
-import uai.helcio.entities.RegexNode.*;
+import uai.helcio.t1.entities.RegexNode.*;
 
 public class RegexTree {
 

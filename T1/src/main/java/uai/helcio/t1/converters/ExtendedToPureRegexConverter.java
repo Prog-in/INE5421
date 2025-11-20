@@ -1,6 +1,6 @@
-package uai.helcio.converters;
+package uai.helcio.t1.converters;
 
-import uai.helcio.entities.Rule;
+import uai.helcio.t1.entities.Rule;
 
 public class ExtendedToPureRegexConverter {
     public static Rule convert(String line) {

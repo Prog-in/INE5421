@@ -1,4 +1,4 @@
-package uai.helcio.utils;
+package uai.helcio.t1.utils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

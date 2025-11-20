@@ -1,4 +1,4 @@
-package uai.helcio.entities;
+package uai.helcio.t1.entities;
 
 public class Rule {
     private final String name;

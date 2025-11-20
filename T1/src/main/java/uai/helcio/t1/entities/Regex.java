@@ -1,4 +1,4 @@
-package uai.helcio.entities;
+package uai.helcio.t1.entities;
 
 import org.apache.commons.collections4.ListUtils;
 
