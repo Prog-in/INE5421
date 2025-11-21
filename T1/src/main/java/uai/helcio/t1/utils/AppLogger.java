@@ -18,4 +18,16 @@ public class AppLogger {
     public static void peekDebug(Object obj) {
         logger.debug(obj.toString());
     }
+
+    public static void peekInfo(Object obj) {
+        logger.info(obj.toString());
+    }
+
+    public static void peekWarn(Object obj) {
+        logger.warn(obj.toString());
+    }
+
+    public static void peekError(Object obj) {
+        logger.error(obj.toString());
+    }
 }

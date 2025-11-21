@@ -7,21 +7,22 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import uai.helcio.t1.converters.ExtendedToPureRegexConverter;
 import uai.helcio.t1.converters.RegexToTreeConverter;
+import uai.helcio.t1.entities.DFA;
 import uai.helcio.t1.utils.AppLogger;
 import uai.helcio.t1.utils.ResourcesUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-
 @Command(
         name = "app",
         mixinStandardHelpOptions = true,
-        description = "Generates a lexical analyzer from a file containing regular definitions"
+        description = "Generates a lexical analyzer from a file containing regular definitions and processes an input file."
 )
 public class App implements Callable<Integer> {
 
@@ -40,10 +41,17 @@ public class App implements Callable<Integer> {
 
     @Parameters(
             index = "0",
-            paramLabel = "INPUT_FILE",
-            description = "Path to the input file containing regular definitions."
+            paramLabel = "REGEX_FILE",
+            description = "Path to the file containing regex definitions."
     )
-    private Path inputFile;
+    private Path regexFile;
+
+    @Parameters(
+            index = "1",
+            paramLabel = "SOURCE_FILE",
+            description = "Path to the file containing the strings to evaluate."
+    )
+    private Path sourceFile;
 
     @Override
     public Integer call() {
@@ -52,24 +60,50 @@ public class App implements Callable<Integer> {
         }
 
         AppLogger.setLoggingLevel(logLevel);
-        try (Stream<String> lines = ResourcesUtils.readFileLines(inputFile, parallel)) {
-            var a = lines
-                    .peek(AppLogger::peekDebug)
-                    .map(ExtendedToPureRegexConverter::convert)
-                    .peek(AppLogger::peekDebug)
-                    .map(RegexToTreeConverter::convert)
-                    .peek(AppLogger::peekDebug)
-                    .toList();
-            AppLogger.logger.trace(a.toString());
+
+        try {
+            List<DFA> dfas;
+            try (Stream<String> lines = ResourcesUtils.readFileLines(regexFile, parallel)) {
+                dfas = lines
+                        .peek(AppLogger::peekDebug)
+                        .map(ExtendedToPureRegexConverter::convert)
+                        .peek(AppLogger::peekDebug)
+                        .map(RegexToTreeConverter::convert)
+                        .map(DFA::new)
+                        .peek(AppLogger::peekDebug)
+                        .toList();
+            }
+
+            try (Stream<String> inputs = ResourcesUtils.readFileLines(sourceFile, false)) {
+                inputs.forEach(line -> processInputLine(line, dfas));
+            }
+
         } catch (Exception e) {
-            AppLogger.logger.error("Ocorreu um erro durante a geração do analisador léxico", e);
+            AppLogger.logger.error("Ocorreu um erro durante a execução", e);
+            return 1;
         }
         return 0;
     }
 
+    private void processInputLine(String input, List<DFA> dfas) {
+        if (input.trim().isEmpty()) return;
+
+        dfas.stream()
+                .filter(dfa -> dfa.accepts(input))
+                .findFirst()
+                .ifPresentOrElse(
+                        dfa -> AppLogger.peekInfo(String.format("<%s, %s>", input, dfa.getTokenName())),
+                        () -> AppLogger.peekError(String.format("<%s, ERROR>", input))
+                );
+    }
+
     private boolean validateInput() {
-        if (!Files.exists(inputFile)) {
-            AppLogger.logger.error("Arquivo de entrada inexistente");
+        if (!Files.exists(regexFile)) {
+            AppLogger.peekError("Arquivo de regras inexistente: " + regexFile);
+            return false;
+        }
+        if (!Files.exists(sourceFile)) {
+            AppLogger.peekError("Arquivo fonte inexistente: " + sourceFile);
             return false;
         }
         return Arrays.stream(Level.values())
