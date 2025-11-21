@@ -1,4 +1,0 @@
-<aa, er1>
-<bbbba, er2>
-<ababab, er1>
-<bbbbb, er2>
