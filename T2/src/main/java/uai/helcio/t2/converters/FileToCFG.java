@@ -16,6 +16,9 @@ public class FileToCFG {
             Pair<String, List<Symbol>> headAndBody = convertLine(line);
             String head = headAndBody.getLeft();
             List<Symbol> body = headAndBody.getRight();
+            if (head.isEmpty() || body.isEmpty()) {
+                continue;
+            }
             cfg.addProduction(head, body);
         }
         return cfg;
@@ -23,7 +26,7 @@ public class FileToCFG {
 
     public static Pair<String, List<Symbol>> convertLine(String line) {
         int i = 0;
-        Pair<String, Integer> headAndNewI = getCharBetween(line, i, '<', '>');
+        Pair<String, Integer> headAndNewI = getStringBetween(line, i, '<', '>');
         String head = headAndNewI.getLeft();
         i = headAndNewI.getRight();
 
@@ -36,12 +39,24 @@ public class FileToCFG {
             if (Character.isWhitespace(c)) {
                 continue;
             }
-            if (c == '<') {
-                Pair<String, Integer> nonTerminalAndNewI = getCharBetween(line, i, '<', '>');
-                i = nonTerminalAndNewI.getRight()-1;
-                body.add(NonTerminal.of(nonTerminalAndNewI.getLeft()));
-            } else {
-                body.add(Terminal.of(String.valueOf(c)));
+            switch (c) {
+                case '&': {
+                    body.add(Terminal.EPSILON);
+                    break;
+                } case '<': {
+                    Pair<String, Integer> nonTerminalAndNewI = getStringBetween(line, i, '<', '>');
+                    String nonTerminal = nonTerminalAndNewI.getLeft();
+                    int newI = nonTerminalAndNewI.getRight() - 1;
+                    if (newI < line.length() && line.charAt(newI) == '>' && !nonTerminal.isEmpty()) {
+                        i = newI;
+                        body.add(NonTerminal.of(nonTerminalAndNewI.getLeft()));
+                        break;
+                    }
+                } default: {
+                    Pair<String, Integer> terminalAndNewI = captureUntil(line, i, ' ');
+                    i = terminalAndNewI.getRight() - 1;
+                    body.add(Terminal.of(terminalAndNewI.getLeft()));
+                }
             }
         }
 
@@ -49,7 +64,7 @@ public class FileToCFG {
     }
 
     private static int jumpToExpr(int i, String str, String subexpr) {
-        while (++i < str.length() && str.substring(i, Math.min(str.length(), i + 3)).equals(subexpr)) {};
+        while (++i < str.length() && str.substring(i, Math.min(str.length(), i + 3)).equals(subexpr));
         return i + (i < str.length() ? subexpr.length()-1 : 0);
     }
 
@@ -60,15 +75,29 @@ public class FileToCFG {
         return i;
     }
 
-    private static Pair<String, Integer> getCharBetween(String line, int i, char begin, char end) {
-        StringBuilder sb = new StringBuilder();
+    private static Pair<String, Integer> getStringBetween(String line, int i, char begin, char end) {
+        String token = "";
         for (; i < line.length(); i++) {
             char c = line.charAt(i);
             if (c != begin) {
                 continue;
             }
-            while (++i < line.length() && (c = line.charAt(i)) != end) {
+            i++;
+            Pair<String, Integer> tokenAndNewIndex = captureUntil(line, i, end);
+            token = tokenAndNewIndex.getLeft();
+            i = tokenAndNewIndex.getRight();
+            break;
+        }
+        return Pair.of(token, i);
+    }
+
+    private static Pair<String, Integer> captureUntil(String line, int i, char end) {
+        StringBuilder sb = new StringBuilder();
+        for (; i < line.length(); i++) {
+            char c = line.charAt(i);
+            while (i < line.length() && (c = line.charAt(i)) != end) {
                 sb.append(c);
+                i++;
             }
             if (c == end) {
                 i++;
