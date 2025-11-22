@@ -2,8 +2,8 @@ package uai.helcio.t2;
 
 import org.slf4j.event.Level;
 import picocli.CommandLine;
-import uai.helcio.t1.utils.AppLogger;
-import uai.helcio.t1.utils.ResourcesUtils;
+import uai.helcio.utils.AppLogger;
+import uai.helcio.utils.ResourcesUtils;
 import uai.helcio.t2.converters.FileToCFG;
 
 import java.nio.file.Files;

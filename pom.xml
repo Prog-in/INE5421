@@ -13,11 +13,13 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <revision>1.0-SNAPSHOT</revision>
     </properties>
 
     <modules>
         <module>T1</module>
         <module>T2</module>
+        <module>utils</module>
     </modules>
 
     <dependencyManagement>
@@ -25,7 +27,13 @@
             <dependency>
                 <groupId>uai.helcio</groupId>
                 <artifactId>T1</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>uai.helcio</groupId>
+                <artifactId>utils</artifactId>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>

@@ -1,4 +1,4 @@
-package uai.helcio.t1.utils;
+package uai.helcio.utils;
 
 import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.LoggerFactory;

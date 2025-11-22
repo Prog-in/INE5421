@@ -1,33 +1,27 @@
 package uai.helcio.t1.converters;
 
+import org.apache.commons.lang3.tuple.Pair;
 import uai.helcio.t1.entities.Rule;
+import uai.helcio.utils.FileParsingUtils;
 
 public class ExtendedToPureRegexConverter {
     public static Rule convert(String line) {
-        StringBuilder ruleName = new StringBuilder();
-
-        // getting rule name: everything until the first space char or ':'
         int i = 0;
-        char c = 0;
-        for (; i < line.length(); i++) {
-            c = line.charAt(i);
-            if (c == ':' || Character.isSpaceChar(c)) {
-                break;
-            }
-            ruleName.append(c);
-        }
 
-        // going to the second part of the line
-        while (i < line.length() && (c == ':' || Character.isSpaceChar(line.charAt(i)))) {
-            i++;
-            c = line.charAt(i);
-        }
+        Pair<String, Integer> ruleNameAndNewI = FileParsingUtils.captureUntil(line, i, ':', false);
+        String ruleName = ruleNameAndNewI.getLeft();
+        i = ruleNameAndNewI.getRight();
 
-        // getting regex
+        i = FileParsingUtils.jumpSpaces(line, i);
+
+        String regex = captureRegex(line, i);
+
+        return new Rule(ruleName, regex);
+    }
+
+    private static String captureRegex(String line, int i) {
         String regex = line.substring(i);
-        String pureRegex = toPure(regex);
-
-        return new Rule(ruleName.toString(), pureRegex);
+        return toPure(regex);
     }
 
     private static String toPure(String regex) {

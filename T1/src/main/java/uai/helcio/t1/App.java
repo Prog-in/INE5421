@@ -8,8 +8,8 @@ import picocli.CommandLine.Parameters;
 import uai.helcio.t1.converters.ExtendedToPureRegexConverter;
 import uai.helcio.t1.converters.RegexToTreeConverter;
 import uai.helcio.t1.entities.DFA;
-import uai.helcio.t1.utils.AppLogger;
-import uai.helcio.t1.utils.ResourcesUtils;
+import uai.helcio.utils.AppLogger;
+import uai.helcio.utils.ResourcesUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
