@@ -3,9 +3,7 @@ package uai.helcio.t1.Automata;
 import uai.helcio.t1.utils.AnsiColors;
 import uai.helcio.utils.AppLogger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DFA {
     private final String name;
@@ -52,8 +50,8 @@ public class DFA {
         sb.append(String.format("DFA STRUCTURE: %s (%s)\n", stageName, name));
         sb.append(thickLine).append("\n");
 
-        java.util.List<Integer> sortedStates = new java.util.ArrayList<>(transitionTable.keySet());
-        java.util.Collections.sort(sortedStates);
+        List<Integer> sortedStates = new ArrayList<>(transitionTable.keySet());
+        Collections.sort(sortedStates);
 
         for (int i = 0; i < sortedStates.size(); i++) {
             int state = sortedStates.get(i);
@@ -68,27 +66,41 @@ public class DFA {
             sb.append(AnsiColors.CYAN_BOLD).append(stateInfo).append(AnsiColors.RESET).append("\n");
 
             Map<String, Integer> trans = transitionTable.get(state);
-            Map<Integer, java.util.List<String>> grouped = new java.util.TreeMap<>();
+            Map<Integer, List<String>> grouped = new TreeMap<>();
 
             for (Map.Entry<String, Integer> entry : trans.entrySet()) {
-                grouped.computeIfAbsent(entry.getValue(), k -> new java.util.ArrayList<>()).add(entry.getKey());
+                grouped.computeIfAbsent(entry.getValue(), _ -> new ArrayList<>()).add(entry.getKey());
             }
 
-            for (Map.Entry<Integer, java.util.List<String>> group : grouped.entrySet()) {
+            for (Map.Entry<Integer, List<String>> group : grouped.entrySet()) {
                 String dest = String.valueOf(group.getKey());
-                String symbols = group.getValue().toString();
+                List<String> symbolsList = group.getValue();
 
-                // truncating for qol
-                int maxSymLen = LINE_LEN - 20;
-                if (symbols.length() > maxSymLen) {
-                    symbols = symbols.substring(0, maxSymLen - 3) + "...";
+                int maxSymLen = 35;
+                StringBuilder buffer = new StringBuilder();
+                buffer.append("[");
+
+                symbolsList.forEach(sym -> {
+                    String separator = (buffer.length() > 1) ? ", " : "";
+                    if (buffer.length() + separator.length() + sym.length() + 1 > maxSymLen && buffer.length() > 1) {
+                        buffer.append("]");
+                        sb.append(String.format("   --> %-5s via %s\n", dest, buffer));
+
+                        buffer.setLength(0);
+                        buffer.append("[").append(sym);
+                    } else {
+                        buffer.append(separator).append(sym);
+                    }
+                });
+
+                if (!buffer.isEmpty()) {
+                    buffer.append("]");
+                    sb.append(String.format("   --> %-5s via %s\n", dest, buffer));
                 }
 
-                sb.append(String.format("   --> %s via %s\n", dest, symbols));
-            }
-
-            if (i < sortedStates.size() - 1) {
-                sb.append(thinLine).append("\n");
+                if (i < sortedStates.size() - 1) {
+                    sb.append(thinLine).append("\n");
+                }
             }
         }
         sb.append(thickLine).append("\n");

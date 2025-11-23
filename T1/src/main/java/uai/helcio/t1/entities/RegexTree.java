@@ -49,45 +49,52 @@ public class RegexTree {
      * @param node curr node
      */
     private void assignLeavesIndices(RegexNode node) {
-        if (node == null) return;
-
-        if (node instanceof LeafNode leaf) {
-            // epsilon get's no value
-            if (!RegexNode.EPSILON.equals(leaf.getVal())) {
-                leafCount++;
-                leaf.setPosition(leafCount);
-                inputs.put(leafCount, leaf.getVal());
+        switch (node) {
+            case null -> {}
+            case LeafNode leaf -> {
+                // epsilon get's no value
+                if (!RegexNode.EPSILON.equals(leaf.getVal())) {
+                    leafCount++;
+                    leaf.setPosition(leafCount);
+                    inputs.put(leafCount, leaf.getVal());
+                }
             }
-        } else if (node instanceof BinaryNode bin) {
-            assignLeavesIndices(bin.left);
-            assignLeavesIndices(bin.right);
-        } else if (node instanceof UnaryNode un) {
-            assignLeavesIndices(un.kid);
+            case BinaryNode bin -> {
+                assignLeavesIndices(bin.left);
+                assignLeavesIndices(bin.right);
+            }
+            case UnaryNode un -> assignLeavesIndices(un.kid);
+            default -> {
+            }
         }
     }
 
     private void computeFollowpos(RegexNode node) {
-        if (node == null) return;
+        switch (node) {
+            case null -> {}
+            case BinaryNode bin -> {
+                if (".".equals(bin.getVal())) {
+                    // concat := N = c1.c2 -> for each i in lastpos(c1) add firstpos(c2) to followpos(i)
+                    for (int i : bin.left.getLastpos()) {
+                        followpos.get(i).addAll(bin.right.getFirstpos());
+                    }
+                }
+                computeFollowpos(bin.left);
+                computeFollowpos(bin.right);
+            }
+            case UnaryNode un -> {
+                if ("*".equals(un.getVal()) || "+".equals(un.getVal())) {
+                    // repetition := N = c1* -> for each i em lastpos(c1) add firstpos(c1) ao followpos(i)
+                    for (int i : un.getLastpos()) {
+                        followpos.get(i).addAll(un.getFirstpos());
+                    }
+                }
+                computeFollowpos(un.kid);
+            }
+            default -> {
+            }
+        }
 
-        if (node instanceof BinaryNode bin) {
-            if (".".equals(bin.getVal())) {
-                // concat := N = c1.c2 -> for each i in lastpos(c1) add firstpos(c2) to followpos(i)
-                for (int i : bin.left.getLastpos()) {
-                    followpos.get(i).addAll(bin.right.getFirstpos());
-                }
-            }
-            computeFollowpos(bin.left);
-            computeFollowpos(bin.right);
-        }
-        else if (node instanceof UnaryNode un) {
-            if ("*".equals(un.getVal()) || "+".equals(un.getVal())) {
-                // repetition := N = c1* -> for each i em lastpos(c1) add firstpos(c1) ao followpos(i)
-                for (int i : un.getLastpos()) {
-                    followpos.get(i).addAll(un.getFirstpos());
-                }
-            }
-            computeFollowpos(un.kid);
-        }
     }
 
     public BinaryNode getRoot() {

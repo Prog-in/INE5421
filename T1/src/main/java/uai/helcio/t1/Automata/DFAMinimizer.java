@@ -31,7 +31,7 @@ public class DFAMinimizer {
             Map<String, Set<Integer>> finalsByToken = new HashMap<>();
             for (int s : finalStates) {
                 String token = tags.get(s);
-                finalsByToken.computeIfAbsent(token, k -> new HashSet<>()).add(s);
+                finalsByToken.computeIfAbsent(token, _ -> new HashSet<>()).add(s);
             }
             partitions.addAll(finalsByToken.values());
         } else {
@@ -67,7 +67,7 @@ public class DFAMinimizer {
                     }
 
                     String key = signature.toString();
-                    splitter.computeIfAbsent(key, k -> new HashSet<>()).add(state);
+                    splitter.computeIfAbsent(key, _ -> new HashSet<>()).add(state);
                 }
                 if (splitter.size() > 1) {
                     changed = true;
@@ -114,7 +114,7 @@ public class DFAMinimizer {
         // When the new start of the dfa isn't the 0 position as well, it's required to swap states and treat
         // whether we keep the new state or not
         if (newStart != 0) {
-            newTrans = swapStates(newTrans, newStart, 0);
+            newTrans = swapStates(newTrans, newStart);
 
             // Swap Final Sets
             if (newFinalStates.contains(newStart)) {
@@ -148,24 +148,24 @@ public class DFAMinimizer {
 
     /**
      * Swaps state a for b in order to ensure the starting state is 0
+     *
      * @param oldMap old transitions map
-     * @param a state a
-     * @param b state b
-     * @return
+     * @param a      state a
+     * @return the new transition table
      */
-    private static Map<Integer, Map<String, Integer>> swapStates(Map<Integer, Map<String, Integer>> oldMap, int a, int b) {
+    private static Map<Integer, Map<String, Integer>> swapStates(Map<Integer, Map<String, Integer>> oldMap, int a) {
         Map<Integer, Map<String, Integer>> newMap = new HashMap<>();
 
         for (var entry : oldMap.entrySet()) {
             int key = entry.getKey();
-            if (key == a) key = b;
-            else if (key == b) key = a;
+            if (key == a) key = 0;
+            else if (key == 0) key = a;
 
             Map<String, Integer> val = new HashMap<>();
             for (var trans : entry.getValue().entrySet()) {
                 int target = trans.getValue();
-                if (target == a) target = b;
-                else if (target == b) target = a;
+                if (target == a) target = 0;
+                else if (target == 0) target = a;
                 val.put(trans.getKey(), target);
             }
             newMap.put(key, val);

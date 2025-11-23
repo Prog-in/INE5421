@@ -145,7 +145,7 @@ public class App implements Callable<Integer> {
                 .anyMatch(Predicate.isEqual(logLevel));
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         int exitCode = new CommandLine(new App()).execute(args);
         System.exit(exitCode);
     }
