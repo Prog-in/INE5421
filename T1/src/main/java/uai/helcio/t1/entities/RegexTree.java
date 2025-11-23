@@ -1,61 +1,118 @@
 package uai.helcio.t1.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-import uai.helcio.t1.entities.RegexNode.*;
+import uai.helcio.t1.entities.RegexNode.BinaryNode;
+import uai.helcio.t1.entities.RegexNode.LeafNode;
+import uai.helcio.t1.entities.RegexNode.UnaryNode;
+import uai.helcio.utils.AppLogger;
+
+import java.util.*;
 
 public class RegexTree {
 
     private final String treeName;
     private final BinaryNode root;
 
-    @Override
-    public String toString() {
-        StringBuilder treeString = new StringBuilder();
-        for (RegexNode node : traverseInOrder()) {
-            treeString.append(String.format("%s ", node.toString()));
+    // position -> following positions
+    private final Map<Integer, Set<Integer>> followpos = new HashMap<>();
+
+    // position-> symbol
+    private final Map<Integer, String> inputs = new HashMap<>();
+
+    private int leafCount = 0;
+
+    public RegexTree(String name, RegexNode rawLeftSubTree) {
+        this.treeName = name;
+
+        this.root = BinaryNode.createAugmentedRoot(rawLeftSubTree);
+
+        initialize();
+    }
+
+    private void initialize() {
+        AppLogger.logger.debug("=== Initializing Tree: {} ===", treeName);
+        assignLeavesIndices(root); // enumerates leaves
+        root.calculateFunctions(); // evaluate nullable, firstpos and lastpos
+        AppLogger.logger.trace("Root firstpos: {}", root.getFirstpos());
+
+        for (int i = 1; i <= leafCount; i++) {
+            followpos.put(i, new HashSet<>());
         }
-        return String.format("[ treeName=%s, nodes=[ %s ] ]", treeName, treeString);
+
+        // evaluate lastpos
+        computeFollowpos(root);
+        AppLogger.logger.trace("Followpos table: {}", followpos);
     }
 
-    public RegexTree(String name, RegexNode leftSubTree) {
-        treeName = name;
-        this.root = BinaryNode.getRoot(leftSubTree);
+
+    /**
+     * Runs the tree adding leaf index
+     * @param node curr node
+     */
+    private void assignLeavesIndices(RegexNode node) {
+        if (node == null) return;
+
+        if (node instanceof LeafNode leaf) {
+            // epsilon get's no value
+            if (!RegexNode.EPSILON.equals(leaf.getVal())) {
+                leafCount++;
+                leaf.setPosition(leafCount);
+                inputs.put(leafCount, leaf.getVal());
+            }
+        } else if (node instanceof BinaryNode bin) {
+            assignLeavesIndices(bin.left);
+            assignLeavesIndices(bin.right);
+        } else if (node instanceof UnaryNode un) {
+            assignLeavesIndices(un.kid);
+        }
     }
 
-    public String getTreeName() {
-        return treeName;
+    private void computeFollowpos(RegexNode node) {
+        if (node == null) return;
+
+        if (node instanceof BinaryNode bin) {
+            if (".".equals(bin.getVal())) {
+                // concat := N = c1.c2 -> for each i in lastpos(c1) add firstpos(c2) to followpos(i)
+                for (int i : bin.left.getLastpos()) {
+                    followpos.get(i).addAll(bin.right.getFirstpos());
+                }
+            }
+            computeFollowpos(bin.left);
+            computeFollowpos(bin.right);
+        }
+        else if (node instanceof UnaryNode un) {
+            if ("*".equals(un.getVal()) || "+".equals(un.getVal())) {
+                // repetition := N = c1* -> for each i em lastpos(c1) add firstpos(c1) ao followpos(i)
+                for (int i : un.getLastpos()) {
+                    followpos.get(i).addAll(un.getFirstpos());
+                }
+            }
+            computeFollowpos(un.kid);
+        }
     }
 
     public BinaryNode getRoot() {
         return root;
     }
 
-    private List<RegexNode> traverseInOrder() {
-        List<RegexNode> nodes = new ArrayList<>();
-        traverseInOrder_(root, nodes);
-        return nodes;
+    public Map<Integer, Set<Integer>> getFollowpos() {
+        return followpos;
     }
 
-    private void traverseInOrder_(RegexNode parent, List<RegexNode> preorderNodes) {
-        switch (parent) {
-            case BinaryNode binaryParent -> {
-                if (binaryParent.left != null) {
-                    traverseInOrder_(binaryParent.left, preorderNodes);
-                }
-                preorderNodes.add(parent);
-                if (binaryParent.right != null) {
-                    traverseInOrder_(binaryParent.right, preorderNodes);
-                }
-            }
-            case UnaryNode unaryParent -> {
-                if (unaryParent.kid != null) {
-                    traverseInOrder_(unaryParent.kid, preorderNodes);
-                }
-                preorderNodes.add(parent);
-            }
-            case null -> {}
-            default -> preorderNodes.add(parent);
-        }
+    public String getSymbol(int position) {
+        return inputs.get(position);
+    }
+    public Set<String> getAlphabet() {
+        Set<String> alphabet = new HashSet<>(inputs.values());
+        alphabet.remove(RegexNode.END_NODE_SYMBOL);
+        return alphabet;
+    }
+
+    public String getTreeName() {
+        return treeName;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("RegexTree[%s] - Leaves: %d", treeName, leafCount);
     }
 }

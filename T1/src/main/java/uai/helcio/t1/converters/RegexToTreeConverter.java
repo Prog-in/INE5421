@@ -21,9 +21,10 @@ public class RegexToTreeConverter {
     }
 
     public static RegexTree convert(Rule rule) {
-        RegexToTreeConverter parser = new RegexToTreeConverter(rule.getRegex());
-        RegexNode leftSubTree = parser.parseRegex(null);
-        return new RegexTree(rule.getName(), leftSubTree);
+        RegexToTreeConverter parser = new RegexToTreeConverter(rule.regex());
+        // parsers only the user's regex
+        RegexNode userRegexTree = parser.parseRegex(null);
+        return new RegexTree(rule.name(), userRegexTree);
     }
 
     private RegexNode parseRegex(RegexNode parent) {
@@ -63,14 +64,25 @@ public class RegexToTreeConverter {
     }
 
     private RegexNode parseBase(RegexNode parent) {
+        // If finds \ it is consumed and treats the next as literal
+        if (peek() == '\\') {
+            next();
+            if (!hasNext()) {
+                throw new IllegalStateException("Escape char '\\' at the end of string!");
+            }
+            char literal = next();
+            return new RegexNode.LeafNode(parent, String.valueOf(literal));
+        }
+
         if (peek() == '(') {
-            next(); // consume '('
+            next();
             RegexNode inside = parseRegex(parent);
             expect(')');
             return inside;
         }
+
         char c = next();
-        return new RegexNode(String.valueOf(c), parent);
+        return new RegexNode.LeafNode(parent, String.valueOf(c));
     }
 
     private boolean hasNext() {
@@ -98,8 +110,8 @@ public class RegexToTreeConverter {
     private BinaryNode linkBinary(BinaryNode op, RegexNode left, RegexNode right) {
         op.left = left;
         op.right = right;
-        left.parent = op;
-        right.parent = op;
+        left.setParent(op);
+        right.setParent(op);
         return op;
     }
 }

@@ -1,7 +1,62 @@
-a1
-0
-teste2
-21
-alpha123
-3444
-a43teste
+programa {
+    // Declaracao de variaveis globais
+    int total_alunos = 5;
+    float media_corte = 6.5;
+    bool aprovado = falso;
+
+    // Simulando um vetor de notas
+    // Nota: Nosso lexer le [ e ] como tokens separados
+    float notas_brutas = 0.0;
+    int i = 0;
+    int j = 0;
+    int temp = 0;
+
+    imprima "Inicio do Processamento";
+
+    // Algoritmo de Bubble Sort simulado
+    // Vamos ordenar 5 numeros ficticios: 8, 4, 9, 2, 6
+    int a = 8;
+    int b = 4;
+    int c = 9;
+    int d = 2;
+    int e = 6;
+
+    // Loop externo
+    enquanto (i < 5) {
+        // Loop interno
+        j = 0;
+        enquanto (j < 4) {
+            // Comparacao complexa
+            se (a > b) {
+                temp = a;
+                a = b;
+                b = temp;
+                imprima "Trocou A e B";
+            } senao {
+                // Nada acontece feijoada
+                imprima "Ordem mantida";
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    // Calculo final
+    float soma = 0.0;
+    soma = a + b + c + d + e; // Somando inteiros em float
+    float media = soma / 5.0;
+
+    se (media >= media_corte) {
+        aprovado = verdadeiro;
+        imprima "Turma Aprovada com Media:";
+    } senao {
+        aprovado = falso;
+        imprima "Turma Reprovada com Media:";
+    }
+
+    // Testando tokens numericos dificeis
+    float precisao = 0.0001;
+    int hexa_fake = 0;
+
+    retorne 0;
+}

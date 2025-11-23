@@ -5,9 +5,10 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import uai.helcio.t1.Automata.*;
 import uai.helcio.t1.converters.ExtendedToPureRegexConverter;
+import uai.helcio.t1.converters.NFAToDFAConverter;
 import uai.helcio.t1.converters.RegexToTreeConverter;
-import uai.helcio.t1.entities.DFA;
 import uai.helcio.utils.AppLogger;
 import uai.helcio.utils.ResourcesUtils;
 
@@ -62,40 +63,74 @@ public class App implements Callable<Integer> {
         AppLogger.setLoggingLevel(logLevel);
 
         try {
-            List<DFA> dfas;
+            List<DFA> individualDFAs;
+
+
             try (Stream<String> lines = ResourcesUtils.readFileLines(regexFile, parallel)) {
-                dfas = lines
-                        .peek(AppLogger::peekDebug)
+                individualDFAs = lines
+                        .peek(l -> AppLogger.logger.debug("Reading RegEX: {}", l))
                         .map(ExtendedToPureRegexConverter::convert)
-                        .peek(AppLogger::peekDebug)
                         .map(RegexToTreeConverter::convert)
-                        .map(DFA::new)
-                        .peek(AppLogger::peekDebug)
+                        .map(DFABuilder::build)
+                        .peek(dfa -> dfa.logStructure("DFA built"))
+                        .map(DFAMinimizer::minimize)
+                        .peek(dfa -> dfa.logStructure("DFA minimized"))
                         .toList();
             }
 
+            // the priority order is made by setting the first rule as priority 0
+            List<String> priorityOrder = individualDFAs.stream()
+                    .map(DFA::getTokenName)
+                    .toList();
+
+            NFA unitedNFA = NFAUnionBuilder.union(individualDFAs);
+            unitedNFA.logStructure("Unifying DFAs");
+
+            // Convert NFA to DFA and uses the priority order to solve conflicts
+            DFA lexicalAnalyzer = NFAToDFAConverter.convert(unitedNFA, priorityOrder);
+            // minimizes it
+            DFA minimizedLexicalAnalyzer = DFAMinimizer.minimize(lexicalAnalyzer);
+            lexicalAnalyzer.logStructure("Final determinization");
+
+            AppLogger.logger.info("Lexical analyser built! ({} states)",
+                    minimizedLexicalAnalyzer.getTransitionTable().size());
+
+            AppLogger.logger.info(">>> STARTING LEXICAL ANALYSIS FROM SOURCE FILE <<<");
+
             try (Stream<String> inputs = ResourcesUtils.readFileLines(sourceFile, false)) {
-                inputs.forEach(line -> processInputLine(line, dfas));
+                inputs.forEach(line -> processInputLine(line, minimizedLexicalAnalyzer));
             }
 
         } catch (Exception e) {
-            AppLogger.logger.error("Ocorreu um erro durante a execução", e);
+            AppLogger.logger.error("An error occurred during the execution", e);
             return 1;
         }
         return 0;
     }
 
-    private void processInputLine(String input, List<DFA> dfas) {
+    private void processInputLine(String input, DFA lexer) {
         if (input.trim().isEmpty()) return;
 
-        dfas.stream()
-                .filter(dfa -> dfa.accepts(input))
-                .findFirst()
-                .ifPresentOrElse(
-                        dfa -> AppLogger.peekInfo(String.format("<%s, %s>", input, dfa.getTokenName())),
-                        () -> AppLogger.peekError(String.format("<%s, ERROR>", input))
-                );
+        int currentPos = 0;
+
+        while (currentPos < input.length()) {
+            DFA.TokenResult result = lexer.nextToken(input, currentPos);
+            if (result != null) {
+                // avoid printing white space
+                if (!result.tokenName().equals("ws")) {
+                    AppLogger.peekInfo(String.format("<%s, %s>", result.lexeme(), result.tokenName()));
+                }
+                currentPos = result.endPosition();
+            } else {
+                String invalidChar = String.valueOf(input.charAt(currentPos));
+                if (!invalidChar.trim().isEmpty()) {
+                    AppLogger.peekError(String.format("<%s, ERROR>", invalidChar));
+                }
+                currentPos++;
+            }
+        }
     }
+
 
     private boolean validateInput() {
         if (!Files.exists(regexFile)) {
