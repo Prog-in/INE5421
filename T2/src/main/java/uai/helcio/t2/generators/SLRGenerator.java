@@ -7,16 +7,46 @@ import uai.helcio.utils.AppLogger;
 
 import java.util.*;
 
+/**
+ * The core engine responsible for generating the SLR parsing table from a Context-Free Grammar.
+ * <p>
+ * This class implements the standard algorithms for constructing an SLR parser:
+ * <ol>
+ * <li>Computation of First and Follow sets.</li>
+ * <li>Construction of the Canonical Collection of LR Items.</li>
+ * <li>Construction of the ACTION and GOTO tables based on the DFA and Follow sets.</li>
+ * </ol>
+ * It also handles conflict resolution (Shift/Reduce and Reduce/Reduce) using standard heuristics.
+ * </p>
+ */
 public class SLRGenerator {
 
     private final CFG cfg;
     private final Map<Integer, Map<Symbol, TableEntry>> parsingTable = new HashMap<>();
     private final List<Set<Item>> canonicalCollection = new ArrayList<>();
 
+    /**
+     * Constructs a new generator for the specific grammar.
+     *
+     * @param cfg The Context-Free Grammar to be analyzed.
+     */
     public SLRGenerator(CFG cfg) {
         this.cfg = cfg;
     }
 
+    /**
+     * Orchestrates the entire table generation process.
+     * <p>
+     * This method performs the following steps in order:
+     * 1. Augments the grammar (S' -> S).
+     * 2. Computes FIRST and FOLLOW sets.
+     * 3. Builds the Canonical Collection of LR(0) items (the states).
+     * 4. Populates the parsing table.
+     * 5. Logs the resulting table.
+     * </p>
+     *
+     * @return The generated SLR parsing table, mapping State Index -> (Symbol -> Action).
+     */
     public Map<Integer, Map<Symbol, TableEntry>> generate() {
         cfg.augment();
         cfg.getFirst();
@@ -27,7 +57,19 @@ public class SLRGenerator {
         return parsingTable;
     }
 
-
+    /**
+     * Computes the CLOSURE of a set of LR(0) items.
+     * <p>
+     * If I is a set of items for a grammar G, then CLOSURE(I) is the set of items constructed from I
+     * by the two rules:
+     * 1. Initially, add every item in I to CLOSURE(I).
+     * 2. If A -> α . B β is in CLOSURE(I) and B -> γ is a production, then add the item B -> . γ
+     * to CLOSURE(I), if it is not already there.
+     * </p>
+     *
+     * @param items The initial set of items.
+     * @return The closure of the set.
+     */
     private Set<Item> closure(Set<Item> items) {
         Set<Item> closureSet = new HashSet<>(items);
         boolean changed;
@@ -57,6 +99,18 @@ public class SLRGenerator {
         return closureSet;
     }
 
+    /**
+     * Computes the GOTO function for a set of items and a grammar symbol.
+     * <p>
+     * GOTO(I, X) is defined to be the closure of the set of all items [A -> α X . β]
+     * such that [A -> α . X β] is in I. Intuitively, this represents the transition
+     * of the parser state when symbol X is observed.
+     * </p>
+     *
+     * @param i The source set of items.
+     * @param x The grammar symbol to transition on.
+     * @return The set of items representing the next state.
+     */
     private Set<Item> goTo(Set<Item> i, Symbol x) {
         Set<Item> movedItems = new HashSet<>();
         for (Item item : i) {
@@ -69,9 +123,17 @@ public class SLRGenerator {
     }
 
 
+    /**
+     * Constructs the Canonical Collection of Sets of LR(0) Items.
+     * <p>
+     * This collection represents the states of the SLR parser's DFA.
+     * It starts with the closure of the augmented production (S' -> . S) and
+     * iteratively computes GOTO for all symbols until no new sets are added.
+     * </p>
+     */
     private void buildCanonicalCollection() {
         // Closure({S' -> . S})
-        NonTerminal startParams = cfg.getAugmentedRoot();
+        NonTerminal startParams = cfg.getRoot();
         List<Symbol> startBody = cfg.getProductions(startParams).getFirst();
 
         Item initialItem = new Item(startParams, startBody, 0);
@@ -87,7 +149,7 @@ public class SLRGenerator {
                 Set<Item> currentSet = canonicalCollection.get(i);
 
                 Set<Symbol> symbolsAfterDot = new HashSet<>();
-                for(Item item : currentSet) {
+                for (Item item : currentSet) {
                     if (item.getSymbolAfterDot() != null) {
                         symbolsAfterDot.add(item.getSymbolAfterDot());
                     }
@@ -106,7 +168,18 @@ public class SLRGenerator {
         AppLogger.logger.info("Canonical Collection generated. Total states: {}", canonicalCollection.size());
     }
 
-
+    /**
+     * Constructs the SLR Parsing Table (Action and Goto parts).
+     * <p>
+     * Iterates through every state in the canonical collection:
+     * <ul>
+     * <li>If [A -> α . a β] is in I and GOTO(I, a) = J, set ACTION[I, a] to "shift J".</li>
+     * <li>If [A -> α .] is in I, set ACTION[I, a] to "reduce A -> α" for all a in FOLLOW(A).</li>
+     * <li>If [S' -> S .] is in I, set ACTION[I, $] to "accept".</li>
+     * <li>If GOTO(I, A) = J, set GOTO[I, A] = J.</li>
+     * </ul>
+     * </p>
+     */
     private void buildTable() {
         for (int i = 0; i < canonicalCollection.size(); i++) {
             Set<Item> stateItems = canonicalCollection.get(i);
@@ -127,7 +200,7 @@ public class SLRGenerator {
                 // A -> alpha . (Reduce)
                 if (item.isReduce()) {
                     // A = S',  ACCEPT
-                    if (item.head().equals(cfg.getAugmentedRoot())) {
+                    if (item.head().equals(cfg.getRoot())) {
                         addEntry(i, Terminal.END, TableEntry.accept());
                     } else {
                         // REDUCE for all 'a' in Follow(A)
@@ -143,10 +216,10 @@ public class SLRGenerator {
 
             Set<Symbol> allSymbols = new HashSet<>();
             stateItems.forEach(it -> {
-                if(it.getSymbolAfterDot() != null) allSymbols.add(it.getSymbolAfterDot());
+                if (it.getSymbolAfterDot() != null) allSymbols.add(it.getSymbolAfterDot());
             });
 
-            for(Symbol s : allSymbols) {
+            for (Symbol s : allSymbols) {
                 if (s.isNonTerminal()) {
                     Set<Item> nextSet = goTo(stateItems, s);
                     int nextStateIndex = canonicalCollection.indexOf(nextSet);
@@ -158,6 +231,20 @@ public class SLRGenerator {
         }
     }
 
+    /**
+     * Inserts an entry into the parsing table and handles potential conflicts.
+     * <p>
+     * <b>Conflict Resolution Strategy:</b>
+     * <ul>
+     * <li>Shift/Reduce: Favor SHIFT.</li>
+     * <li>Reduce/Reduce: Favor the first reduction found (implied priority by grammar order).</li>
+     * </ul>
+     * </p>
+     *
+     * @param state  The current state index.
+     * @param symbol The lookahead symbol.
+     * @param entry  The action to perform (Shift, Reduce, Accept).
+     */
     private void addEntry(int state, Symbol symbol, TableEntry entry) {
         Map<Symbol, TableEntry> row = parsingTable.get(state);
 
@@ -190,6 +277,10 @@ public class SLRGenerator {
         row.put(symbol, entry);
     }
 
+
+    /**
+     * Logs the final generated parsing table in a readable format.
+     */
     private void printTable() {
         StringBuilder sb = new StringBuilder("\n--- SLR Parsing Table ---\n");
         List<Integer> sortedStates = new ArrayList<>(parsingTable.keySet());
