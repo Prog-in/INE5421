@@ -137,19 +137,15 @@ public abstract class RegexNode {
 
             if ("*".equals(val)) {
                 this.nullable = true;
-                this.firstpos.addAll(kid.getFirstpos());
-                this.lastpos.addAll(kid.getLastpos());
             }
             else if ("+".equals(val)) { // a+ == a.a*
                 this.nullable = kid.isNullable();
-                this.firstpos.addAll(kid.getFirstpos());
-                this.lastpos.addAll(kid.getLastpos());
             }
             else if ("?".equals(val)) { // a? == (a|epsilon)
                 this.nullable = true;
-                this.firstpos.addAll(kid.getFirstpos());
-                this.lastpos.addAll(kid.getLastpos());
             }
+            this.firstpos.addAll(kid.getFirstpos());
+            this.lastpos.addAll(kid.getLastpos());
         }
     }
 }

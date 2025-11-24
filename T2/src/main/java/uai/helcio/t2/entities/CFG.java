@@ -13,6 +13,7 @@ public class CFG {
     private final Map<Symbol, List<Terminal>> follow = new HashMap<>();
     private boolean computedFirst = false;
     private boolean computedFollow = false;
+    private NonTerminal augmentedRoot;
 
     public CFG() {
     }
@@ -70,20 +71,6 @@ public class CFG {
         }
     }
 
-    private <T extends Symbol> T genericGet(String repr, List<T> symbols) {
-        return symbols.stream()
-                .filter(symbol -> symbol.getRepr().equals(repr))
-                .findAny()
-                .orElse(null);
-    }
-
-    public NonTerminal getNonTerminal(String repr) {
-        return genericGet(repr, nonTerminals);
-    }
-
-    public Terminal getTerminal(String repr) {
-        return genericGet(repr, terminals);
-    }
 
     public void addProduction(String headRepr, List<Symbol> body) {
         NonTerminal head = NonTerminal.of(headRepr);
@@ -102,9 +89,9 @@ public class CFG {
         return productions.getOrDefault(head, Collections.emptyList());
     }
 
-    public Map<Symbol, List<Terminal>> getFirst() {
+    public void getFirst() {
         if (computedFirst) {
-            return first;
+            return;
         }
 
         for (Terminal terminal : terminals) {
@@ -121,7 +108,6 @@ public class CFG {
             }
         } while (someAdded);
         computedFirst = true;
-        return first;
     }
 
     private List<Terminal> getFirst(NonTerminal symbol) {
@@ -202,5 +188,33 @@ public class CFG {
             }
         }
         return flw;
+    }
+
+
+    public void augment() {
+        if (root == null) throw new IllegalStateException("Gramática vazia");
+
+        if (augmentedRoot != null) return;
+
+        String rootRepr = root.getRepr() + "'";
+        augmentedRoot = NonTerminal.of(rootRepr);
+
+        List<Symbol> body = new ArrayList<>();
+        body.add(root);
+
+        List<List<Symbol>> prods = new ArrayList<>();
+        prods.add(body);
+        productions.put(augmentedRoot, prods);
+
+        addNonTerminal(augmentedRoot);
+
+        computedFirst = false;
+        computedFollow = false;
+        first.clear();
+        follow.clear();
+    }
+
+    public NonTerminal getAugmentedRoot() {
+        return augmentedRoot != null ? augmentedRoot : root;
     }
 }

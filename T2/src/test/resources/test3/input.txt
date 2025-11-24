@@ -1,0 +1,27 @@
+var MAX : inteiro ;
+
+var x , y : inteiro ;
+var v : vetor [ num_int ] de real ;
+
+proc somar ( val a : inteiro ; ref b : inteiro ) ;
+var temp : inteiro ;
+inicio
+  temp := a + b ;
+  b := temp
+fim ;
+
+inicio
+  leia ( x ) ;
+  y := num_int ;
+
+  enquanto x < y faca
+  inicio
+    x := x + num_int ;
+    v [ x ] := num_real
+  fim ;
+
+  se x = y entao
+    escreva ( literal )
+  senao
+    somar ( x , y )
+fim .
