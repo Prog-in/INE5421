@@ -1,5 +1,7 @@
 package uai.helcio.t1.Automata;
 
+import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import uai.helcio.utils.AppLogger;
 
 import java.util.*;
@@ -171,15 +173,24 @@ public class DFA {
         return transitionTable.values().stream()
                 .flatMap(m -> m.keySet().stream())
                 .distinct()
+                .sorted()
                 .toList();
     }
 
     public String toTableAsString() {
-        StringBuilder sb = new StringBuilder();
-        for (String symbol : getAlphabet()) {
-
+        AsciiTable table = new AsciiTable();
+        table.addRule();
+        table.addRow("State", "Input", "Next");
+        table.addRule();
+        for (Map.Entry<Integer, Map<String, Integer>> entry : transitionTable.entrySet()) {
+            Integer state = entry.getKey();
+            Map<String, Integer> transitions = entry.getValue();
+            for (Map.Entry<String, Integer> transition : transitions.entrySet()) {
+                table.addRow(state, transition.getKey(), transition.getValue());
+                table.addRule();
+            }
         }
-        return null;
+        return table.setTextAlignment(TextAlignment.CENTER).render();
     }
 
     public Map<Integer, String> getFinalStateTags() {

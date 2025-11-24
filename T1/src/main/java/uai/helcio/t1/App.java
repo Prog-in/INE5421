@@ -107,7 +107,7 @@ public class App implements Callable<Integer> {
             AppLogger.logger.info("Lexical analyser built! ({} states)",
                     minimizedLexicalAnalyzer.getTransitionTable().size());
 
-            AppLogger.logToFile("final_dfa.txt", "T1", minimizedLexicalAnalyzer.toString());
+            AppLogger.logToFile("final_dfa.txt", "T1", minimizedLexicalAnalyzer.toTableAsString());
 
             AppLogger.logger.info(">>> STARTING LEXICAL ANALYSIS FROM SOURCE FILE <<<");
 
