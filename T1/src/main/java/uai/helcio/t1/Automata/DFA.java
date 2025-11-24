@@ -1,6 +1,5 @@
 package uai.helcio.t1.Automata;
 
-import uai.helcio.t1.utils.AnsiColors;
 import uai.helcio.utils.AppLogger;
 
 import java.util.*;
@@ -10,6 +9,10 @@ public class DFA {
     private final int startState = 0;
     private final Set<Integer> finalStates;
     private final Map<Integer, Map<String, Integer>> transitionTable;
+
+    static final int LINE_LEN = 60;
+    static final String thickLine = "═".repeat(LINE_LEN);
+    static final String thinLine = "─".repeat(LINE_LEN);
 
     // Map<ID, TokenName>
     private final Map<Integer, String> finalStateTags;
@@ -41,70 +44,9 @@ public class DFA {
 
 
     public void logStructure(String stageName) {
-        final int LINE_LEN = 60;
-        String thickLine = "═".repeat(LINE_LEN);
-        String thinLine = "─".repeat(LINE_LEN);
-
         StringBuilder sb = new StringBuilder();
-        sb.append("\n");
-        sb.append(String.format("DFA STRUCTURE: %s (%s)\n", stageName, name));
-        sb.append(thickLine).append("\n");
-
-        List<Integer> sortedStates = new ArrayList<>(transitionTable.keySet());
-        Collections.sort(sortedStates);
-
-        for (int i = 0; i < sortedStates.size(); i++) {
-            int state = sortedStates.get(i);
-            String type = (state == startState) ? "START" : "";
-            if (finalStates.contains(state)) {
-                String token = finalStateTags.getOrDefault(state, name);
-                type += (type.isEmpty() ? "" : ", ") + "FINAL(" + token + ")";
-            }
-
-            String stateInfo = "State " + state + (type.isEmpty() ? "" : " [" + type + "]");
-
-            sb.append(AnsiColors.CYAN_BOLD).append(stateInfo).append(AnsiColors.RESET).append("\n");
-
-            Map<String, Integer> trans = transitionTable.get(state);
-            Map<Integer, List<String>> grouped = new TreeMap<>();
-
-            for (Map.Entry<String, Integer> entry : trans.entrySet()) {
-                grouped.computeIfAbsent(entry.getValue(), _ -> new ArrayList<>()).add(entry.getKey());
-            }
-
-            for (Map.Entry<Integer, List<String>> group : grouped.entrySet()) {
-                String dest = String.valueOf(group.getKey());
-                List<String> symbolsList = group.getValue();
-
-                int maxSymLen = 35;
-                StringBuilder buffer = new StringBuilder();
-                buffer.append("[");
-
-                symbolsList.forEach(sym -> {
-                    String separator = (buffer.length() > 1) ? ", " : "";
-                    if (buffer.length() + separator.length() + sym.length() + 1 > maxSymLen && buffer.length() > 1) {
-                        buffer.append("]");
-                        sb.append(String.format("   --> %-5s via %s\n", dest, buffer));
-
-                        buffer.setLength(0);
-                        buffer.append("[").append(sym);
-                    } else {
-                        buffer.append(separator).append(sym);
-                    }
-                });
-
-                if (!buffer.isEmpty()) {
-                    buffer.append("]");
-                    sb.append(String.format("   --> %-5s via %s\n", dest, buffer));
-                }
-
-                if (i < sortedStates.size() - 1) {
-                    sb.append(thinLine).append("\n");
-                }
-            }
-        }
-        sb.append(thickLine).append("\n");
-
+        sb.insert(0, String.format("Stage: %s", stageName));
+        sb.append(this);
         AppLogger.logger.info(sb.toString());
     }
 
@@ -156,7 +98,88 @@ public class DFA {
 
     @Override
     public String toString() {
-        return String.format("DFA[%s] States: %d, Tags: %s", name, transitionTable.size(), finalStateTags);
+        final int LINE_LEN = 60;
+        String thickLine = "═".repeat(LINE_LEN);
+        String thinLine = "─".repeat(LINE_LEN);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("DFA STRUCTURE of %s\n", name))
+                .append(thickLine).append("\n");
+
+        List<Integer> sortedStates = new ArrayList<>(transitionTable.keySet());
+        Collections.sort(sortedStates);
+
+        for (int i = 0; i < sortedStates.size(); i++) {
+            int state = sortedStates.get(i);
+            String type = (state == startState) ? "START" : "";
+            if (finalStates.contains(state)) {
+                String token = finalStateTags.getOrDefault(state, name);
+                type += (type.isEmpty() ? "" : ", ") + "FINAL(" + token + ")";
+            }
+
+            String stateInfo = "State " + state + (type.isEmpty() ? "" : " [" + type + "]");
+
+//            sb.append(AnsiColors.CYAN_BOLD).append(stateInfo).append(AnsiColors.RESET).append("\n");
+            sb.append(stateInfo).append("\n");
+
+            Map<String, Integer> trans = transitionTable.get(state);
+            Map<Integer, List<String>> grouped = new TreeMap<>();
+
+            for (Map.Entry<String, Integer> entry : trans.entrySet()) {
+                grouped.computeIfAbsent(entry.getValue(), _ -> new ArrayList<>()).add(entry.getKey());
+            }
+
+            for (Map.Entry<Integer, List<String>> group : grouped.entrySet()) {
+                String dest = String.valueOf(group.getKey());
+                List<String> symbolsList = group.getValue();
+
+                int maxSymLen = 35;
+                StringBuilder buffer = new StringBuilder();
+                buffer.append("[");
+
+                symbolsList.forEach(sym -> {
+                    String separator = (buffer.length() > 1) ? ", " : "";
+                    if (buffer.length() + separator.length() + sym.length() + 1 > maxSymLen && buffer.length() > 1) {
+                        buffer.append("]");
+                        sb.append(String.format("   --> %-5s via %s\n", dest, buffer));
+
+                        buffer.setLength(0);
+                        buffer.append("[").append(sym);
+                    } else {
+                        buffer.append(separator).append(sym);
+                    }
+                });
+
+                if (!buffer.isEmpty()) {
+                    buffer.append("]");
+                    sb.append(String.format("   --> %-5s via %s\n", dest, buffer));
+                }
+
+                if (i < sortedStates.size() - 1) {
+                    sb.append(thinLine).append("\n");
+                }
+            }
+            if (grouped.isEmpty()) {
+                sb.append(thinLine).append("\n");
+            }
+        }
+        sb.append(thickLine).append("\n");
+        return sb.toString();
+    }
+
+    public List<String> getAlphabet() {
+        return transitionTable.values().stream()
+                .flatMap(m -> m.keySet().stream())
+                .distinct()
+                .toList();
+    }
+
+    public String toTableAsString() {
+        StringBuilder sb = new StringBuilder();
+        for (String symbol : getAlphabet()) {
+
+        }
+        return null;
     }
 
     public Map<Integer, String> getFinalStateTags() {

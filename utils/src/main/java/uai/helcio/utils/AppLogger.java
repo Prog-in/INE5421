@@ -4,9 +4,17 @@ import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
+
 public class AppLogger {
     private static final String NAME = "uai.helcio";
     public static final org.slf4j.Logger logger = LoggerFactory.getLogger(NAME);
+    private static final String TIMESTAMP = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss"));
+    private static final String OUTPUT_DIRECTORY = "output";
 
     public static void setLoggingLevel(Level level) {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -29,5 +37,13 @@ public class AppLogger {
 
     public static void peekError(Object obj) {
         logger.error(obj.toString());
+    }
+
+    public static void logToFile(String fileName, String append, String obj) {
+        logToFile(fileName, append, Collections.singletonList(obj));
+    }
+
+    public static void logToFile(String fileName, String append, List<String> obj) {
+        ResourcesUtils.writeToFile(Path.of(OUTPUT_DIRECTORY,append + "-" + TIMESTAMP, fileName), obj);
     }
 }

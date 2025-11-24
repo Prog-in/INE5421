@@ -69,6 +69,9 @@ public class ExtendedToPureRegexConverter {
         StringBuilder pureOr = new StringBuilder("(");
         for (int i = 1; i < squareBracketsExp.length() - 1; i++) {
             char current = squareBracketsExp.charAt(i);
+            if (current == '\\') {
+                continue;
+            }
 
             if (i + 2 < squareBracketsExp.length() && squareBracketsExp.charAt(i + 1) == '-') {
                 char end = squareBracketsExp.charAt(i + 2);

@@ -87,6 +87,9 @@ public class App implements Callable<Integer> {
                         .toList();
             }
 
+            // write each DFA to a file
+            individualDFAs.forEach(dfa -> AppLogger.logToFile("regular_definitions_dfas.txt", "T1", dfa.toString()));
+
             // the priority order is made by setting the first rule as priority 0
             List<String> priorityOrder = individualDFAs.stream()
                     .map(DFA::getTokenName)
@@ -103,6 +106,8 @@ public class App implements Callable<Integer> {
 
             AppLogger.logger.info("Lexical analyser built! ({} states)",
                     minimizedLexicalAnalyzer.getTransitionTable().size());
+
+            AppLogger.logToFile("final_dfa.txt", "T1", minimizedLexicalAnalyzer.toString());
 
             AppLogger.logger.info(">>> STARTING LEXICAL ANALYSIS FROM SOURCE FILE <<<");
 

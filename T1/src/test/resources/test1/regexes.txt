@@ -1,5 +1,5 @@
 ws: \ +
-comment: //[a-zA-Z0-9\ \_\-\.\:]*
+comment: //([a-zA-Z0-9]|\ |\_|\.|\:)*
 main: programa
 if: se
 else: senao
@@ -32,5 +32,5 @@ mult: \*
 div: /
 float: [0-9]+\.[0-9]+
 int: [0-9]+
-string: "[a-zA-Z0-9 :.]*"
-id: [a-zA-Z_][a-zA-Z0-9_]*
+string: "([a-zA-Z0-9]|\ |\_|\.|\:)*"
+id: ([a-zA-Z]|\_)([a-zA-Z0-9]|\_)*
