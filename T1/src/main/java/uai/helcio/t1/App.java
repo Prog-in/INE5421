@@ -12,8 +12,10 @@ import uai.helcio.t1.converters.RegexToTreeConverter;
 import uai.helcio.utils.AppLogger;
 import uai.helcio.utils.ResourcesUtils;
 
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -53,6 +55,13 @@ public class App implements Callable<Integer> {
             description = "Path to the file containing the strings to evaluate."
     )
     private Path sourceFile;
+
+    @Parameters(
+            index = "2",
+            paramLabel = "OUTPUT_FILE",
+            description = "Path to the output file containing the tokenized input."
+    )
+    private Path outputFile;
 
     @Override
     public Integer call() {
@@ -98,7 +107,9 @@ public class App implements Callable<Integer> {
             AppLogger.logger.info(">>> STARTING LEXICAL ANALYSIS FROM SOURCE FILE <<<");
 
             try (Stream<String> inputs = ResourcesUtils.readFileLines(sourceFile, false)) {
-                inputs.forEach(line -> processInputLine(line, minimizedLexicalAnalyzer));
+                List<String> lines = new ArrayList<>();
+                inputs.forEach(line -> lines.addAll(processInputLine(line, minimizedLexicalAnalyzer)));
+                ResourcesUtils.writeToFile(outputFile, lines);
             }
 
         } catch (Exception e) {
@@ -108,8 +119,9 @@ public class App implements Callable<Integer> {
         return 0;
     }
 
-    private void processInputLine(String input, DFA lexer) {
-        if (input.trim().isEmpty()) return;
+    private List<String> processInputLine(String input, DFA lexer) {
+        List<String> bla = new ArrayList<>();
+        if (input.trim().isEmpty()) return bla;
 
         int currentPos = 0;
 
@@ -118,19 +130,23 @@ public class App implements Callable<Integer> {
             if (result != null) {
                 // avoid printing white space
                 if (!result.tokenName().equals("ws")) {
-                    AppLogger.peekInfo(String.format("<%s, %s>", result.lexeme(), result.tokenName()));
+                    String token = String.format("<%s, %s>", result.lexeme(), result.tokenName());
+                    AppLogger.peekDebug(token);
+                    bla.add(token);
                 }
                 currentPos = result.endPosition();
             } else {
                 String invalidChar = String.valueOf(input.charAt(currentPos));
                 if (!invalidChar.trim().isEmpty()) {
-                    AppLogger.peekError(String.format("<%s, ERROR>", invalidChar));
+                    String token = String.format("<%s, ERROR>", invalidChar);
+                    AppLogger.peekDebug(token);
+                    bla.add(token);
                 }
                 currentPos++;
             }
         }
+        return bla;
     }
-
 
     private boolean validateInput() {
         if (!Files.exists(regexFile)) {
