@@ -9,10 +9,10 @@
 // N && (N-1) = M, onde M é a representação binaria de N, com o bit de valor 1 mais significativo
 // sendo alterado para 0.
 
-MODULE HAMMING_WEIGHT_KERNIGHAN(nat n)
+MODULE HAMMING_WEIGHT_KERNIGHAN(NAT n)
 {
     // count: acumulador que armazena a quantidade de bits ativos (1) encontrados.
-    nat count ← 0;
+    NAT count ← 0;
     
     // Laço executa enquanto houver pelo menos um bit ativo em n.
     WHILE (n > 0) DO
@@ -22,4 +22,5 @@ MODULE HAMMING_WEIGHT_KERNIGHAN(nat n)
         n ← n && (n - 1);   
     }    
     RETURN count;
+
 }
