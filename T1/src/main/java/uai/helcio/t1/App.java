@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 @Command(
         name = "app",
@@ -64,9 +63,10 @@ public class App implements Callable<Integer> {
         }
         try {
             AppLogger.setLoggingLevel(logLevel);
-            Stream<String> regexStream = ResourcesUtils.readFileLines(regexFile, parallel);
-            Stream<String> sourceStream = ResourcesUtils.readFileLines(sourceFile, false);
-            Tokenizer req = new Tokenizer(regexStream, sourceStream);
+
+            List<String> regexes = ResourcesUtils.fileLinesToList(regexFile);
+            List<String> source = ResourcesUtils.fileLinesToList(sourceFile);
+            Tokenizer req = new Tokenizer(regexes, source, parallel);
             List<String> tokens = req.tokenize();
             ResourcesUtils.writeToFile(outputFile, tokens);
         } catch (Exception e) {

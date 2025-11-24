@@ -67,59 +67,22 @@ public class App implements Callable<Integer> {
         AppLogger.setLoggingLevel(logLevel);
 
         try {
-            // Read and Convert Grammar
-            var lines = ResourcesUtils.readFileLines(grammarFile, false);
-            var cfg = FileToCFG.convert(lines.toList());
-
             AppLogger.logger.info("--- Fase de Projeto: Gerando Tabela SLR ---");
-            // Generate the SLR Action/Goto Table
-            Map<Integer, Map<Symbol, TableEntry>> parsingTable = new SLRGenerator(cfg).generate();
+            List<String> grammarFileLines = ResourcesUtils.fileLinesToList(grammarFile);
 
-            // Prepare Symbol Table
             AppLogger.logger.info("--- Fase de Execução: Preparando Tabela de Símbolos ---");
-            List<String> reservedWords = ResourcesUtils.readFileLines(reservedWordsFile, false).toList();
-            SymbolTable symbolTable = new SymbolTable(reservedWords);
+            List<String> reservedWords = ResourcesUtils.fileLinesToList(reservedWordsFile);
+            Parser parser = new Parser(grammarFileLines, reservedWords);
 
             // Lexical Analysis & Semantic Scans
-            List<Token> tokens = new ArrayList<>();
-            final boolean[] contextVar = {false};
-
-            try (Stream<String> inputLines = ResourcesUtils.readFileLines(inputFile, false)) {
-                for (String line : inputLines.toList()) {
-                    // Simple tokenizer splitting by whitespace
-                    String[] lexemes = line.trim().split("\\s+");
-
-                    for (String lexeme : lexemes) {
-                        if (lexeme.isEmpty()) continue;
-
-                        // Get token from table
-                        Token t = symbolTable.getOrAdd(lexeme);
-                        tokens.add(t);
-
-                        if (lexeme.equals("var")) {
-                            contextVar[0] = true;
-                        } else if (lexeme.equals("inicio") || lexeme.equals("begin") || lexeme.equals("const")) {
-                            contextVar[0] = false;
-                        }
-
-                        // Mark identifiers as VARIABLES if inside a 'var' block and not a reserved word
-                        if (contextVar[0] && !reservedWords.contains(lexeme) && Character.isLetter(lexeme.charAt(0))) {
-                            if (!lexeme.equals("inteiro") && !lexeme.equals("real") &&
-                                    !lexeme.equals("vetor") && !lexeme.equals("of")) {
-                                symbolTable.declareVariable(lexeme, "var_declarada");
-                            }
-                        }
-                    }
-                }
-            }
+            List<Token> tokens = parser.populateSymbolTable(ResourcesUtils.fileLinesToList(inputFile));
 
             AppLogger.logger.info("Tokens identificados: {}", tokens);
             AppLogger.logger.info("Estado da Tabela de Símbolos (Pós-Varredura):");
-            AppLogger.logger.info(symbolTable.toString());
+            AppLogger.logger.info(parser.getSymbolTable().toString());
 
             // 4. Parsing Execution
             AppLogger.logger.info("--- Iniciando Análise Sintática ---");
-            SLRParser parser = new SLRParser(parsingTable);
             boolean result = parser.parse(tokens);
 
             return result ? 0 : 1;

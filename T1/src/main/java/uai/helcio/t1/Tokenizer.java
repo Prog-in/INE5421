@@ -6,23 +6,28 @@ import uai.helcio.t1.converters.NFAToDFAConverter;
 import uai.helcio.t1.converters.RegexToTreeConverter;
 import uai.helcio.utils.AppLogger;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class Tokenizer {
-    private final Stream<String> regexStream;
-    private final Stream<String> sourceStream;
+    private final List<String> regexes;
+    private final List<String> source;
+    private final boolean parallel;
 
-    public Tokenizer(Stream<String> regexStream, Stream<String> sourceStream) {
-        this.regexStream = regexStream;
-        this.sourceStream = sourceStream;
+    public Tokenizer(List<String> regexes, List<String> source, boolean parallel) {
+        this.regexes = regexes;
+        this.source = source;
+        this.parallel = parallel;
     }
 
     public List<String> tokenize() {
         List<DFA> individualDFAs;
 
+        Stream<String> regexStream = regexes.stream();
+        if (parallel) {
+            regexStream = regexStream.parallel();
+        }
         individualDFAs = regexStream
                 .peek(l -> AppLogger.logger.debug("Reading RegEX: {}", l))
                 .map(ExtendedToPureRegexConverter::convert)
@@ -31,10 +36,8 @@ public class Tokenizer {
                 .peek(dfa -> dfa.logStructure("DFA built"))
                 .map(DFAMinimizer::minimize)
                 .peek(dfa -> dfa.logStructure("DFA minimized"))
+                .peek(dfa -> AppLogger.logToFile("regular_definitions_dfas.txt", "T1", dfa.toString()))
                 .toList();
-
-        // write each DFA to a file
-        individualDFAs.forEach(dfa -> AppLogger.logToFile("regular_definitions_dfas.txt", "T1", dfa.toString()));
 
         // the priority order is made by setting the first rule as priority 0
         List<String> priorityOrder = individualDFAs.stream()
@@ -58,7 +61,7 @@ public class Tokenizer {
         AppLogger.logger.info(">>> STARTING LEXICAL ANALYSIS FROM SOURCE FILE <<<");
 
         List<String> lines = new ArrayList<>();
-        sourceStream.forEach(line -> lines.addAll(processInputLine(line, minimizedLexicalAnalyzer)));
+        source.forEach(line -> lines.addAll(processInputLine(line, minimizedLexicalAnalyzer)));
         return lines;
     }
 

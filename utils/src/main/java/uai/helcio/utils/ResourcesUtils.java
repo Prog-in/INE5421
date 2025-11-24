@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ResourcesUtils {
+    public static List<String> fileLinesToList(Path filePath) throws IOException {
+        try (Stream<String> lines = readFileLines(filePath, false)) {
+            return lines.toList();
+        }
+    }
     public static Stream<String> readFileLines(Path fileName, boolean parallel) throws IOException {
         return readFileLines(fileName, StandardCharsets.US_ASCII, parallel);
     }
