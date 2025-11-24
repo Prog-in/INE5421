@@ -1,0 +1,25 @@
+
+
+// O Hamming Weight de um número inteiro é dado pela quantidade de bits com valor 1
+// encontrados na representação binaria deste mesmo inteiro.
+// O algoritmo de Kerningham é uma maneira eficiente de calcular o Hamming Weight,
+// pois itera apenas k vezes, onde k é o Hamming Weight da entrada.
+// A propriedade-chave a ser compreendida se encontra abaixo
+
+// N && (N-1) = M, onde M é a representação binaria de N, com o bit de valor 1 mais significativo
+// sendo alterado para 0.
+
+MODULE HAMMING_WEIGHT_KERNIGHAN(nat n)
+{
+    // count: acumulador que armazena a quantidade de bits ativos (1) encontrados.
+    nat count ← 0;
+    
+    // Laço executa enquanto houver pelo menos um bit ativo em n.
+    WHILE (n > 0) DO
+    {
+        count ← count + 1
+        //A linha seguinte reseta um LSB '1' para '0'.
+        n ← n && (n - 1);   
+    }    
+    RETURN count;
+}

@@ -1,0 +1,37 @@
+ws: \ +
+comment: //[a-zA-Z0-9\ \_\-\.\:]*
+main: MODULE
+if: IF
+else: ELSE
+while: WHILE
+print: DISPLAY
+return: RETURN
+true: TRUE
+false: FALSE
+bitwise_and: &&
+rshift: >>
+type_nat: NAT
+type_bool: BOOL
+lparen: \(
+rparen: \)
+lbrace: \{
+rbrace: \}
+lbracket: \[
+rbracket: \]
+semi: ;
+comma: ,
+colon: :
+eq: =
+assign: ←
+ge: >=
+gt: >
+le: <=
+lt: <
+plus: \+
+minus: -
+mult: \*
+div: /
+mod: \%
+nat: [0-9]+
+str: "[a-zA-Z0-9 :.]*"
+id: [a-zA-Z_][a-zA-Z0-9_]*

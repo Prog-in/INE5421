@@ -1,0 +1,21 @@
+MAIN IsPrime(NAT N):
+    IF (N <= 1) THEN:
+      RETURN FALSE;
+    END IF;
+
+    IF (N = 2 OR N = 3) THEN:
+        RETURN TRUE;
+    END IF;
+
+    NAT i <- 5;
+    WHILE (i * i <= N):
+        IF (N MOD i = 0) THEN:
+            RETURN FALSE;
+        END IF;
+        IF (N MOD (i + 2) == 0) THEN:
+            RETURN FALSE;
+        END IF;
+        i = i + 6;
+    END WHILE;
+    RETURN TRUE;
+
