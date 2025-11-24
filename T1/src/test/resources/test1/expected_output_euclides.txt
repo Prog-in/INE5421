@@ -1,0 +1,62 @@
+<PROGRAM, main>
+<EUCLID_GCD, id>
+<(, lparen>
+<NAT, type_nat>
+<a, id>
+<,, comma>
+<NAT, type_nat>
+<b, id>
+<), rparen>
+<{, lbrace>
+<//Tratando a=0 e b=0, comment>
+<IF, if>
+<a, id>
+<=, eq>
+<0, int>
+<{, lbrace>
+<RETURN, return>
+<b, id>
+<;, semi>
+<}, rbrace>
+<IF, if>
+<b, id>
+<=, eq>
+<0, int>
+<{, lbrace>
+<RETURN, return>
+<a, id>
+<;, semi>
+<}, rbrace>
+<//Caso geral, comment>
+<WHILE, while>
+<(, lparen>
+<b, id>
+<!=, neq>
+<0, id>
+<), rparen>
+<{, lbrace>
+<NAT, type_nat>
+<resto, id>
+<<-, assign>
+<a, id>
+<MOD, mod>
+<b, id>
+<;, semi>
+<a, id>
+<<-, assign>
+<b, id>
+<;, semi>
+<b, id>
+<<-, assign>
+<resto, id>
+<;, semi>
+<}, rbrace>
+<// Ao fim do laço, a variável "a" armazena o GCD., comment>
+<RETURN, return>
+<a, id>
+<;, semi>
+<}, rbrace>
+
+
+
+
