@@ -1,0 +1,104 @@
+Following the established pattern from the previous example (lexical analysis), I will analyze the contents of `input_primality.txt` using the token definitions in `lex_primality.txt` to produce the tokens for the conceptual file **`expected_output_primality.txt`**.
+
+The output format is **`<Lexeme, Token Type>`**.
+
+### 📝 Generated Lexical Output
+
+```
+<MAIN, main>
+<IsPrime, id>
+<(, lparen>
+<NAT, type_nat>
+<N, id>
+<), rparen>
+<:, colon>
+<IF, if>
+<(, lparen>
+<N, id>
+<=, le>
+<1, nat>
+<), rparen>
+<THEN, then>
+<:, colon>
+<RETURN, return>
+<FALSE, false>
+<;, semi>
+<END IF, endif>
+<;, semi>
+<IF, if>
+<(, lparen>
+<N, id>
+<=, eq>
+<2, nat>
+<OR, id>
+<N, id>
+<=, eq>
+<3, nat>
+<), rparen>
+<THEN, then>
+<:, colon>
+<RETURN, return>
+<TRUE, true>
+<;, semi>
+<END IF, endif>
+<;, semi>
+<NAT, type_nat>
+<i, id>
+<<-, assign>
+<5, nat>
+<;, semi>
+<WHILE, while>
+<(, lparen>
+<i, id>
+<TIMES, mult>
+<i, id>
+<=, le>
+<N, id>
+<), rparen>
+<:, colon>
+<IF, if>
+<(, lparen>
+<N, id>
+<MOD, mod>
+<i, id>
+<=, eq>
+<0, nat>
+<), rparen>
+<THEN, then>
+<:, colon>
+<RETURN, return>
+<FALSE, false>
+<;, semi>
+<END IF, endif>
+<;, semi>
+<IF, if>
+<(, lparen>
+<N, id>
+<MOD, mod>
+<(, lparen>
+<i, id>
+<PLUS, plus>
+<2, nat>
+<), rparen>
+<=, eq>
+<0, nat>
+<), rparen>
+<THEN, then>
+<:, colon>
+<RETURN, return>
+<FALSE, false>
+<;, semi>
+<END IF, endif>
+<;, semi>
+<i, id>
+<=, eq>
+<i, id>
+<PLUS, plus>
+<6, nat>
+<;, semi>
+<END WHILE, endwhile>
+<;, semi>
+<RETURN, return>
+<TRUE, true>
+<;, semi>
+```
