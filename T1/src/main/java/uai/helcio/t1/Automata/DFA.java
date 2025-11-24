@@ -184,9 +184,11 @@ public class DFA {
         table.addRule();
         for (Map.Entry<Integer, Map<String, Integer>> entry : transitionTable.entrySet()) {
             Integer state = entry.getKey();
+            String type = (state == startState) ? "->" : "";
+            String endState = (finalStates.contains(state)) ? "*" : "";
             Map<String, Integer> transitions = entry.getValue();
             for (Map.Entry<String, Integer> transition : transitions.entrySet()) {
-                table.addRow(state, transition.getKey(), transition.getValue());
+                table.addRow(type + endState + state, transition.getKey(), transition.getValue());
                 table.addRule();
             }
         }
