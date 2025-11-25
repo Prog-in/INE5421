@@ -1,0 +1,34 @@
+const inteiro MAX = 100 ;
+const real PI = 3.14 ;
+var x , y : inteiro ;
+var ativo : booleano ;
+var mensagem : cadeia [ 50 ] ;
+var numeros : vetor [ 10 ] de inteiro ;
+proc imprime ( val n : inteiro ) ;
+inicio
+  escreva ( n )
+fim ;
+funcao soma ( val a : inteiro ; val b : inteiro ) : inteiro ;
+var resultado : inteiro ;
+inicio
+  resultado := a + b
+fim ;
+inicio
+  x := 0 ;
+  y := 10 ;
+  ativo := verdadeiro ;
+  enquanto x < y faca
+    inicio
+      x := x + 1 ;
+      imprime ( x )
+    fim ;
+  se x >= MAX entao
+    escreva ( "Limite atingido" )
+  senao
+    inicio
+      repita
+        y := y - 1
+      ate y <= 0 ;
+      leia ( x )
+    fim
+fim .

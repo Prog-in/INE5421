@@ -36,26 +36,25 @@ public class App implements Callable<Integer> {
         try {
             List<String> regexes = ResourcesUtils.fileLinesToList(regexFile);
             List<String> source = ResourcesUtils.fileLinesToList(inputFile);
-            Tokenizer req = new Tokenizer(regexes, source, false);
-            List<Token> tokens = req.tokenize();
+            Tokenizer tokenizer = new Tokenizer(regexes, source, false);
+            List<Token> tokens = tokenizer.tokenize();
 
             AppLogger.logger.info("--- Fase de Projeto: Gerando Tabela SLR ---");
             List<String> grammarFileLines = ResourcesUtils.fileLinesToList(grammarFile);
 
-            AppLogger.logger.info("--- Fase de Execução: Preparando Tabela de Símbolos ---");
             List<String> reservedWords = ResourcesUtils.fileLinesToList(reservedWordsFile);
             Parser parser = new Parser(grammarFileLines, reservedWords);
 
-            // read input
-//            List<Token> tokens = parser.populateSymbolTable(ResourcesUtils.fileLinesToList(inputFile));
+            AppLogger.logger.info("--- Fase de Execução: Preparando Tabela de Símbolos ---");
+            List<Token> tokens2 = parser.populateSymbolTable(tokens.stream().map(Token::toString).toList());
 
-            AppLogger.logger.info("Tokens identificados: {}", tokens);
+            AppLogger.logger.info("Tokens identificados: {}", tokens2);
             AppLogger.logger.info("Estado da Tabela de Símbolos (Pós-Varredura):");
             AppLogger.logger.info(parser.getSymbolTable().toString());
 
             // 4. Parsing Execution
             AppLogger.logger.info("--- Iniciando Análise Sintática ---");
-            boolean result = parser.parse(tokens);
+            boolean result = parser.parse(tokens2);
 
             return result ? 0 : 1;
 

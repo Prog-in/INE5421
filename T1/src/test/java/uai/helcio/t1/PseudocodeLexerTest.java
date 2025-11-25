@@ -26,9 +26,9 @@ public class PseudocodeLexerTest {
     @Test
     public void testPseudocodeLexicalAnalysis() {
         try {
-            Path regexFile = findTestFile("lex_pseudocode.txt");
-            Path inputFile = findTestFile("input_pseudocode.txt");
-            Path expectedFile = findTestFile("expected-output_pseudocode.txt");
+            Path regexFile = findTestFile("test5/regexes.txt");
+            Path inputFile = findTestFile("test5/input.txt");
+            Path expectedFile = findTestFile("test5/expected-output.txt");
 
             DFA lexicalAnalyzer = buildLexicalAnalyzer(regexFile);
 
