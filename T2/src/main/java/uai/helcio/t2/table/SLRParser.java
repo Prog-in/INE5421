@@ -94,7 +94,7 @@ public class SLRParser {
                 return false;
             }
 
-            AppLogger.logger.trace("State: {} | Input: {} | Action: {}",
+            AppLogger.logger.info("State: {} | Input: {} | Action: {}",
                     stack.stream().map(Object::toString).collect(Collectors.joining(",")), currentToken, action);
 
             switch (action.type()) {
