@@ -52,7 +52,6 @@ public class App implements Callable<Integer> {
             AppLogger.logger.info("Estado da Tabela de Símbolos (Pós-Varredura):");
             AppLogger.logger.info(parser.getSymbolTable().toString());
 
-            // 4. Parsing Execution
             AppLogger.logger.info("--- Iniciando Análise Sintática ---");
             boolean result = parser.parse(tokens2);
 
