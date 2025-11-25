@@ -20,6 +20,7 @@
         <module>T1</module>
         <module>T2</module>
         <module>utils</module>
+        <module>Compiler</module>
     </modules>
 
     <dependencyManagement>
@@ -27,6 +28,12 @@
             <dependency>
                 <groupId>uai.helcio</groupId>
                 <artifactId>T1</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>uai.helcio</groupId>
+                <artifactId>T2</artifactId>
                 <version>${revision}</version>
             </dependency>
 

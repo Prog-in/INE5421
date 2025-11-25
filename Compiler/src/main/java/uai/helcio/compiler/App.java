@@ -1,33 +1,19 @@
-package uai.helcio.t2;
-
-import org.slf4j.event.Level;
-import picocli.CommandLine;
-import uai.helcio.t2.entities.CFG;
-import uai.helcio.t1.entities.Token;
-import uai.helcio.t2.generators.SLRGenerator;
-import uai.helcio.t2.table.SLRParser;
-import uai.helcio.t2.table.SymbolTable;
-import uai.helcio.utils.AppLogger;
-import uai.helcio.utils.ResourcesUtils;
+package uai.helcio.compiler;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/**
- * The main entry point for the SLR Syntactic Analyzer Generator.
- */
-@CommandLine.Command(
-        name = "T2",
-        mixinStandardHelpOptions = true,
-        description = "Generates SLR Analyzer and parses input."
-)
+import org.slf4j.event.Level;
+import picocli.CommandLine;
+import uai.helcio.t1.Tokenizer;
+import uai.helcio.t2.Parser;
+import uai.helcio.t1.entities.Token;
+import uai.helcio.utils.AppLogger;
+import uai.helcio.utils.ResourcesUtils;
+
 public class App implements Callable<Integer> {
 
-    /**
-     * CLI option to set the logging verbosity level.
-     * Default is INFO. Use DEBUG or TRACE to see the parser stack changes and table details.
-     */
     @CommandLine.Option(names = {"-l", "--log-level"}, defaultValue = "INFO")
     private Level logLevel;
 
@@ -35,32 +21,24 @@ public class App implements Callable<Integer> {
     private Path grammarFile;
 
     @CommandLine.Parameters(index = "1")
-    private Path reservedWordsFile;
+    private Path regexFile;
 
     @CommandLine.Parameters(index = "2")
+    private Path reservedWordsFile;
+
+    @CommandLine.Parameters(index = "3")
     private Path inputFile;
 
-    /**
-     * Executes the main logic of the application.
-     * <p>
-     * This method is invoked by the Picocli framework after parsing the command line arguments.
-     * It follows the sequence:
-     * <ul>
-     * <li><b>Step 1:</b> Parse Grammar File -> Convert to {@link CFG}.</li>
-     * <li><b>Step 2:</b> Generate Parsing Table using {@link SLRGenerator}.</li>
-     * <li><b>Step 3:</b> Initialize {@link SymbolTable} with reserved words.</li>
-     * <li><b>Step 4:</b> Read Input File -> Tokenize -> Update Symbol Table.</li>
-     * <li><b>Step 5:</b> Run {@link SLRParser} to validate the token stream.</li>
-     * </ul>
-     * </p>
-     *
-     * @return Exit code
-     */
     @Override
     public Integer call() {
         AppLogger.setLoggingLevel(logLevel);
 
         try {
+            List<String> regexes = ResourcesUtils.fileLinesToList(regexFile);
+            List<String> source = ResourcesUtils.fileLinesToList(inputFile);
+            Tokenizer req = new Tokenizer(regexes, source, false);
+            List<Token> tokens = req.tokenize();
+
             AppLogger.logger.info("--- Fase de Projeto: Gerando Tabela SLR ---");
             List<String> grammarFileLines = ResourcesUtils.fileLinesToList(grammarFile);
 
@@ -69,7 +47,7 @@ public class App implements Callable<Integer> {
             Parser parser = new Parser(grammarFileLines, reservedWords);
 
             // read input
-            List<Token> tokens = parser.populateSymbolTable(ResourcesUtils.fileLinesToList(inputFile));
+//            List<Token> tokens = parser.populateSymbolTable(ResourcesUtils.fileLinesToList(inputFile));
 
             AppLogger.logger.info("Tokens identificados: {}", tokens);
             AppLogger.logger.info("Estado da Tabela de Símbolos (Pós-Varredura):");
@@ -87,11 +65,6 @@ public class App implements Callable<Integer> {
         }
     }
 
-    /**
-     * Application Entry Point.
-     *
-     * @param args Command line arguments passed to Picocli.
-     */
     static void main(String[] args) {
         System.exit(new CommandLine(new App()).execute(args));
     }

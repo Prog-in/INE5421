@@ -3,6 +3,7 @@ package uai.helcio;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Test;
 import uai.helcio.t1.Tokenizer;
+import uai.helcio.t1.entities.Token;
 import uai.helcio.utils.TestUtils;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class AppTest {
             List<String> expectedOutput = testFiles.getRight();
 
             Tokenizer tokenizer = new Tokenizer(testFiles.getMiddle(), testFiles.getLeft(), false);
-            List<String> tokens = tokenizer.tokenize();
+            List<String> tokens = tokenizer.tokenize().stream().map(Token::toString).toList();
             assertEquals(expectedOutput, tokens);
         }
     }

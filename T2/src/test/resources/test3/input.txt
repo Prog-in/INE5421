@@ -1,27 +1,29 @@
-var MAX : inteiro ;
-
-var x , y : inteiro ;
-var v : vetor [ num_int ] de real ;
-
-proc somar ( val a : inteiro ; ref b : inteiro ) ;
-var temp : inteiro ;
-inicio
-  temp := a + b ;
-  b := temp
-fim ;
-
-inicio
-  leia ( x ) ;
-  y := num_int ;
-
-  enquanto x < y faca
-  inicio
-    x := x + num_int ;
-    v [ x ] := num_real
-  fim ;
-
-  se x = y entao
-    escreva ( literal )
-  senao
-    somar ( x , y )
-fim .
+<const, CONST>
+<inteiro, TIPO_PRE_DEF>
+<c, ID>
+<=, IGUAL>
+<10, NUM_INT>
+<;, PONTO_VIRGULA>
+<var, VAR>
+<x, ID>
+<,, VIRGULA>
+<y, ID>
+<:, DOIS_PONTOS>
+<inteiro, TIPO_PRE_DEF>
+<;, PONTO_VIRGULA>
+<proc, PROC>
+<p, ID>
+<(, ABRE_PARENTESE>
+<ref, REF>
+<a, ID>
+<:, DOIS_PONTOS>
+<inteiro, TIPO_PRE_DEF>
+<), FECHA_PARENTESE>
+<;, PONTO_VIRGULA>
+<inicio, INICIO>
+<x, ID>
+<:=, ATRIB>
+<a, ID>
+<fim, FIM>
+<;, PONTO_VIRGULA>
+<., PONTO>

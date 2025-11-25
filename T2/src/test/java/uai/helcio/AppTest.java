@@ -2,7 +2,7 @@ package uai.helcio;
 
 import org.junit.jupiter.api.Test;
 import uai.helcio.t2.Parser;
-import uai.helcio.t2.entities.Token;
+import uai.helcio.t1.entities.Token;
 import uai.helcio.utils.TestUtils;
 
 import java.util.List;

@@ -1,13 +1,15 @@
 package uai.helcio.t2;
 
+import org.apache.commons.lang3.tuple.Pair;
 import uai.helcio.t2.converters.FileToCFG;
 import uai.helcio.t2.entities.CFG;
 import uai.helcio.t2.entities.Symbol;
-import uai.helcio.t2.entities.Token;
+import uai.helcio.t1.entities.Token;
 import uai.helcio.t2.generators.SLRGenerator;
 import uai.helcio.t2.table.SLRParser;
 import uai.helcio.t2.table.SymbolTable;
 import uai.helcio.t2.table.TableEntry;
+import uai.helcio.utils.FileParsingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,32 +37,23 @@ public class Parser {
         return new SLRGenerator(cfg).generate();
     }
 
-    public List<Token> populateSymbolTable(List<String> sourceFile) {
+    public List<Token> populateSymbolTable(List<String> tokensReprs) {
         List<Token> tokens = new ArrayList<>();
-        final boolean[] contextVar = {false};
-        for (String line : sourceFile) {
-            // Simple tokenizer splitting by whitespace
-            String[] lexemes = line.trim().split("\\s+");
-
-            for (String lexeme : lexemes) {
-                if (lexeme.isEmpty()) continue;
-
-                // Get token from table
-                Token t = symbolTable.getOrAdd(lexeme);
-                tokens.add(t);
-
-                if (lexeme.equals("var")) {
-                    contextVar[0] = true;
-                } else if (lexeme.equals("inicio") || lexeme.equals("begin") || lexeme.equals("const")) {
-                    contextVar[0] = false;
+        for (String tokenStr : tokensReprs) {
+            for (int i = 0; i < tokenStr.length(); i++) {
+                i++; // jump '<'
+                // token is ','
+                String lexeme;
+                if (tokenStr.charAt(i) == ',' && tokenStr.charAt(i + 1) == ',') {
+                    lexeme = ",";
+                } else {
+                    lexeme = FileParsingUtils.captureUntil(tokenStr, i, ',', false).getLeft();
                 }
-
-                // Mark identifiers as VARIABLES if inside a 'var' block and not a reserved word
-                if (contextVar[0] && !reservedWords.contains(lexeme) && Character.isLetter(lexeme.charAt(0))) {
-                    if (!lexeme.equals("inteiro") && !lexeme.equals("real") &&
-                            !lexeme.equals("vetor") && !lexeme.equals("of")) {
-                        symbolTable.declareVariable(lexeme, "var_declarada");
-                    }
+                if (!lexeme.isEmpty()) {
+                    // Get token from table
+                    Token t = symbolTable.getOrAdd(lexeme);
+                    tokens.add(t);
+                    break;
                 }
             }
         }

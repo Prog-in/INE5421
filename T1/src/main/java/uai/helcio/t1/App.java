@@ -5,6 +5,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import uai.helcio.t1.entities.Token;
 import uai.helcio.utils.AppLogger;
 import uai.helcio.utils.ResourcesUtils;
 
@@ -67,7 +68,7 @@ public class App implements Callable<Integer> {
             List<String> regexes = ResourcesUtils.fileLinesToList(regexFile);
             List<String> source = ResourcesUtils.fileLinesToList(sourceFile);
             Tokenizer req = new Tokenizer(regexes, source, parallel);
-            List<String> tokens = req.tokenize();
+            List<String> tokens = req.tokenize().stream().map(Token::toString).toList();
             ResourcesUtils.writeToFile(outputFile, tokens);
         } catch (Exception e) {
             AppLogger.logger.error("An error occurred during the execution", e);

@@ -4,6 +4,7 @@ import uai.helcio.t1.Automata.*;
 import uai.helcio.t1.converters.ExtendedToPureRegexConverter;
 import uai.helcio.t1.converters.NFAToDFAConverter;
 import uai.helcio.t1.converters.RegexToTreeConverter;
+import uai.helcio.t1.entities.Token;
 import uai.helcio.utils.AppLogger;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class Tokenizer {
         this.parallel = parallel;
     }
 
-    public List<String> tokenize() {
+    public List<Token> tokenize() {
         List<DFA> individualDFAs;
 
         Stream<String> regexStream = regexes.stream();
@@ -60,14 +61,14 @@ public class Tokenizer {
 
         AppLogger.logger.info(">>> STARTING LEXICAL ANALYSIS FROM SOURCE FILE <<<");
 
-        List<String> lines = new ArrayList<>();
+        List<Token> lines = new ArrayList<>();
         source.forEach(line -> lines.addAll(processInputLine(line, minimizedLexicalAnalyzer)));
         return lines;
     }
 
-    private List<String> processInputLine(String input, DFA lexer) {
-        List<String> bla = new ArrayList<>();
-        if (input.trim().isEmpty()) return bla;
+    private List<Token> processInputLine(String input, DFA lexer) {
+        List<Token> lineTokens = new ArrayList<>();
+        if (input.trim().isEmpty()) return lineTokens;
 
         int currentPos = 0;
 
@@ -76,21 +77,21 @@ public class Tokenizer {
             if (result != null) {
                 // avoid printing white space
                 if (!result.tokenName().equals("ws")) {
-                    String token = String.format("<%s, %s>", result.lexeme(), result.tokenName());
+                    Token token = new Token(result.lexeme(), result.tokenName());
                     AppLogger.peekDebug(token);
-                    bla.add(token);
+                    lineTokens.add(token);
                 }
                 currentPos = result.endPosition();
             } else {
                 String invalidChar = String.valueOf(input.charAt(currentPos));
                 if (!invalidChar.trim().isEmpty()) {
-                    String token = String.format("<%s, ERROR>", invalidChar);
+                    Token token = new Token(invalidChar, "ERROR");
                     AppLogger.peekDebug(token);
-                    bla.add(token);
+                    lineTokens.add(token);
                 }
                 currentPos++;
             }
         }
-        return bla;
+        return lineTokens;
     }
 }

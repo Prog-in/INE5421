@@ -1,6 +1,6 @@
 package uai.helcio.t2.table;
 
-import uai.helcio.t2.entities.Token;
+import uai.helcio.t1.entities.Token;
 
 import java.util.LinkedList;
 

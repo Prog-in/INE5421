@@ -2,13 +2,14 @@ package uai.helcio.t2.table;
 
 import uai.helcio.t2.entities.Symbol;
 import uai.helcio.t2.entities.Terminal;
-import uai.helcio.t2.entities.Token;
+import uai.helcio.t1.entities.Token;
 import uai.helcio.t2.generators.SLRGenerator;
 import uai.helcio.utils.AppLogger;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * The runtime engine for the SLR Parser.
@@ -93,7 +94,8 @@ public class SLRParser {
                 return false;
             }
 
-            AppLogger.logger.trace("State: {} | Input: {} | Action: {}", currentState, currentToken, action);
+            AppLogger.logger.trace("State: {} | Input: {} | Action: {}",
+                    stack.stream().map(Object::toString).collect(Collectors.joining(",")), currentToken, action);
 
             switch (action.type()) {
                 case SHIFT -> {

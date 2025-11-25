@@ -1,6 +1,6 @@
 package uai.helcio.t1.Automata;
 
-import uai.helcio.t1.utils.AnsiColors;
+import uai.helcio.utils.AnsiColors;
 import uai.helcio.utils.AppLogger;
 
 import java.util.*;

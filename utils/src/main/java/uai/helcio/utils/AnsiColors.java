@@ -1,4 +1,4 @@
-package uai.helcio.t1.utils;
+package uai.helcio.utils;
 
 public class AnsiColors {
     // Reseta a cor para o padrão do terminal
