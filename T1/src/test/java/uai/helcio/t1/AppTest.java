@@ -1,8 +1,7 @@
-package uai.helcio;
+package uai.helcio.t1;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Test;
-import uai.helcio.t1.Tokenizer;
 import uai.helcio.t1.entities.Token;
 import uai.helcio.utils.TestUtils;
 

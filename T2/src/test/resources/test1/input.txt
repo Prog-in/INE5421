@@ -1,1 +1,5 @@
-aaaab
+<a, A>
+<a, A>
+<a, A>
+<a, A>
+<b, B>

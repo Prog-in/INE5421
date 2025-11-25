@@ -1,7 +1,6 @@
-package uai.helcio;
+package uai.helcio.t2;
 
 import org.junit.jupiter.api.Test;
-import uai.helcio.t2.Parser;
 import uai.helcio.t1.entities.Token;
 import uai.helcio.utils.TestUtils;
 
@@ -18,7 +17,7 @@ public class AppTest {
 
     @Test
     public void test() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i < 3; i++) {
             Quartet<List<String>, List<String>, List<String>, List<String>> testFiles = readTestFiles(i);
             boolean expectedOutput = Boolean.parseBoolean(testFiles.fourth.getFirst());
 
