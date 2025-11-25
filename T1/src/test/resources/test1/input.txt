@@ -13,7 +13,7 @@ PROGRAM EUCLID_GCD(NAT a, NAT b)
         a <- b;
         b <- resto;
     	}
-    // Ao fim do laço, a variável "a" armazena o GCD.
+    // Ao fim do laco a variavel a armazena o GCD
     RETURN a;
 
 }

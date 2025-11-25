@@ -1,12 +1,9 @@
 ws: \ +
-comment: #[a-zA-Z0-9\ \_\-\.\:]*
-main: TOP_LEVEL
+comment: //([a-zA-Z0-9]|\ |\_|\.|\:|=)*
+main: PROGRAM
 if: IF
-then: THEN
 else: ELSE
-other: OTHER
 while: WHILE
-do: DO
 print: DISPLAY
 return: RETURN
 true: TRUE
@@ -23,6 +20,7 @@ semi: ;
 comma: ,
 colon: :
 eq: =
+neq: !=
 assign: <-
 ge: >=
 gt: >
@@ -34,6 +32,5 @@ mult: \*
 div: /
 mod: \%
 nat: [0-9]+
-chr: '[a-zA-Z0-9 :.]?'
-str: "[a-zA-Z0-9 :.]*"
+str: "([a-zA-Z0-9]|\ |\_|\.|\:)*"
 id: [a-zA-Z_][a-zA-Z0-9_]*

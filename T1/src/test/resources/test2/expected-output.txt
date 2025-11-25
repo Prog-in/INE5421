@@ -1,9 +1,9 @@
-<// O Hamming Weight de um número inteiro é dado pela quantidade de bits com valor 1, comment>
-<// encontrados na representação binaria deste mesmo inteiro., comment>
-<// O algoritmo de Kerningham é uma maneira eficiente de calcular o Hamming Weight,, comment>
-<// pois itera apenas k vezes, onde k é o Hamming Weight da entrada., comment>
+<// O Hamming Weight de um numero inteiro e dado pela quantidade de bits com valor 1, comment>
+<// encontrados na representacao binaria deste mesmo inteiro., comment>
+<// O algoritmo de Kerningham e uma maneira eficiente de calcular o Hamming Weight,, comment>
+<// pois itera apenas k vezes, onde k e o Hamming Weight da entrada., comment>
 <// A propriedade-chave a ser compreendida se encontra abaixo, comment>
-<// N && (N-1) = M, onde M é a representação binaria de N, com o bit de valor 1 mais significativo, comment>
+<// N AND (N-1) = M, onde M e a representacao binaria de N, com o bit de valor 1 mais significativo, comment>
 <// sendo alterado para 0., comment>
 <MODULE, main>
 <HAMMING_WEIGHT_KERNIGHAN, id>
@@ -18,7 +18,7 @@
 <←, assign>
 <0, nat>
 <;, semi>
-<// Laço executa enquanto houver pelo menos um bit ativo em n., comment>
+<// Laco executa enquanto houver pelo menos um bit ativo em n., comment>
 <WHILE, while>
 <(, lparen>
 <n, id>

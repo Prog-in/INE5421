@@ -8,38 +8,42 @@
 <b, id>
 <), rparen>
 <{, lbrace>
-<//Tratando a=0 e b=0, comment>
+<// Tratando a=0 e b=0, comment>
 <IF, if>
+<(, lparen>
 <a, id>
 <=, eq>
-<0, int>
+<0, nat>
+<), rparen>
 <{, lbrace>
 <RETURN, return>
 <b, id>
 <;, semi>
 <}, rbrace>
 <IF, if>
+<(, lparen>
 <b, id>
 <=, eq>
-<0, int>
+<0, nat>
+<), rparen>
 <{, lbrace>
 <RETURN, return>
 <a, id>
 <;, semi>
 <}, rbrace>
-<//Caso geral, comment>
+<// Caso geral, comment>
 <WHILE, while>
 <(, lparen>
 <b, id>
 <!=, neq>
-<0, id>
+<0, nat>
 <), rparen>
 <{, lbrace>
 <NAT, type_nat>
 <resto, id>
 <<-, assign>
 <a, id>
-<MOD, mod>
+<%, mod>
 <b, id>
 <;, semi>
 <a, id>
@@ -51,12 +55,8 @@
 <resto, id>
 <;, semi>
 <}, rbrace>
-<// Ao fim do laço, a variável "a" armazena o GCD., comment>
+<// Ao fim do laco a variavel a armazena o GCD, comment>
 <RETURN, return>
 <a, id>
 <;, semi>
 <}, rbrace>
-
-
-
-

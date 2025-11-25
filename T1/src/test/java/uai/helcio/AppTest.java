@@ -18,7 +18,7 @@ public class AppTest {
 
     @Test
     public void test() {
-        for (int i = 5; i < 6; i++) {
+        for (int i = 1; i < 5; i++) {
             Triple<List<String>, List<String>, List<String>> testFiles = readTestFiles(i);
             List<String> expectedOutput = testFiles.getRight();
 
