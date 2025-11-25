@@ -17,7 +17,7 @@ public class AppTest {
 
     @Test
     public void test() {
-        for (int i = 1; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             Quartet<List<String>, List<String>, List<String>, List<String>> testFiles = readTestFiles(i);
             boolean expectedOutput = Boolean.parseBoolean(testFiles.fourth.getFirst());
 
